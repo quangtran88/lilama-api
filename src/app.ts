@@ -1,10 +1,26 @@
 import express from "express";
-import dotenv from "dotenv";
 import { initDB } from "./utils/mongodb";
+import router from "./routers";
+import session from "express-session";
+import { SESSION_SECRET } from "./config/common";
+import morgan from "morgan";
 
 export async function initApp() {
-  dotenv.config();
-  await initDB();
-  const app = express();
-  return app;
+    await initDB();
+    const app = express();
+
+    app.use(morgan("combined"));
+    app.use(express.json());
+    app.use(
+        session({
+            secret: SESSION_SECRET,
+            resave: false,
+            saveUninitialized: true,
+            cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+        })
+    );
+
+    app.use(router);
+
+    return app;
 }
