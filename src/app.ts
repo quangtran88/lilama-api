@@ -4,11 +4,13 @@ import router from "./routers";
 import session from "express-session";
 import { SESSION_SECRET } from "./config/common";
 import morgan from "morgan";
+import cors from "cors";
 
 export async function initApp() {
     await initDB();
     const app = express();
 
+    app.use(cors());
     app.use(morgan("combined"));
     app.use(express.json());
     app.use(
