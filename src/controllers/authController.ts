@@ -1,25 +1,23 @@
-import { Router } from "express";
 import { validateZod } from "../utils/validation";
 import authService from "../services/authService";
 import { LoginDTOValidation } from "../validations/auth";
-import { handleError, responseSuccess } from "../utils/response";
+import { success } from "../utils/response";
 import { SESSION_AUTH_KEY } from "../config/common";
+import { CustomRouter } from "../utils/router";
 
-const router = Router();
+const router = new CustomRouter();
 
-router.post("/login", async (req, res) => {
-    await handleError(res, async () => {
-        const dto = validateZod(LoginDTOValidation, req.body);
-        const user = await authService.verifyCredential(dto);
-        req.session[SESSION_AUTH_KEY] = user.id.toString();
-        return responseSuccess(res);
-    });
+router.post("/login", async (req) => {
+    const dto = validateZod(LoginDTOValidation, req.body);
+    const user = await authService.verifyCredential(dto);
+    req.session[SESSION_AUTH_KEY] = user.id.toString();
+    return success();
 });
 
-router.post("/logout", (req, res) => {
+router.post("/logout", async (req, res) => {
     res.clearCookie(SESSION_AUTH_KEY);
     req.session.destroy(() => {});
-    return responseSuccess(res);
+    return success();
 });
 
-export default router;
+export default router.getRouter();

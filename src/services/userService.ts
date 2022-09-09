@@ -12,9 +12,14 @@ async function createUser(dto: CreateUserDTO): Promise<IUser> {
     }
 
     const hashedPassword = await hashPassword(dto.password);
-    return userRepository.create({ ...dto, password: hashedPassword });
+    return userRepository.create({ ...dto, password: hashedPassword, active: true });
+}
+
+async function getAllUsers(): Promise<IUser[]> {
+    return userRepository.find();
 }
 
 export default {
     createUser,
+    getAllUsers,
 };

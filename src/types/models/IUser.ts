@@ -14,6 +14,7 @@ export interface IUser extends IBase {
     username: string;
     password: string;
     permission: UserPermission;
+    active: boolean;
     phone?: string;
     full_name?: string;
     email?: string;

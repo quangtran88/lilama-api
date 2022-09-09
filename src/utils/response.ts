@@ -10,6 +10,10 @@ export function responseSuccess(res: Response, data?: object) {
     return res.json({ success: true, data });
 }
 
+export function success(data?: object) {
+    return { success: true, data };
+}
+
 export async function handleError(res: Response, handler: () => Promise<any>) {
     try {
         await handler();

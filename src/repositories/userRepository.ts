@@ -1,6 +1,6 @@
 import { IUser } from "../types/models/IUser";
 import { User } from "../models/user";
-import { Types } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 
 function create(user: Partial<IUser>) {
     return User.create(user);
@@ -14,8 +14,13 @@ function findById(id: Types.ObjectId | string) {
     return User.findById(id).exec();
 }
 
+function find(query?: FilterQuery<IUser>) {
+    return User.find(query || {}).exec();
+}
+
 export default {
     create,
     findByUsername,
     findById,
+    find,
 };

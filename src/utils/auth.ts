@@ -17,6 +17,10 @@ export async function ensureAuthenticated(req: Request, res: Response, next: Nex
         return responseError(UserError.NOT_FOUND, res);
     }
 
+    if (!user.active) {
+        return responseError(UserError.BLOCKED, res);
+    }
+
     req.currentUser = user;
     next();
 }

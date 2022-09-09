@@ -15,6 +15,7 @@ const UserSchema = new Schema(
         full_name: String,
         email: String,
         phone: String,
+        active: Boolean,
     },
     {
         timestamps: defaultTimestamp,
@@ -22,5 +23,8 @@ const UserSchema = new Schema(
 );
 
 UserSchema.plugin(paginate);
+
+UserSchema.index({ username: 1 });
+UserSchema.index({ active: 1 });
 
 export const User = model<IUserDocument, IUserModel>("User", UserSchema);
