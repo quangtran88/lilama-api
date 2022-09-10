@@ -4,6 +4,10 @@ import { defaultTimestamp } from "../models/base";
 
 export const ObjectId = mongoose.Types.ObjectId;
 
+export function getUri() {
+    return DB_URI;
+}
+
 export async function initDB() {
     const uri = getUri();
     await mongoose.connect(uri);
@@ -19,8 +23,4 @@ export function generateSchema<ISchema>(schemaDefinition: SchemaDefinition<ISche
         },
         { timestamps: defaultTimestamp, ...options }
     );
-}
-
-function getUri() {
-    return DB_URI;
 }
