@@ -11,7 +11,7 @@ const router = new CustomRouter();
 
 router.POST("/user", allow(["D"]), async (req) => {
     const dto = validateZod(CreateUserDTOValidation, req.body);
-    const created = await userService.create(dto);
+    const created = await userService.create(dto, req.currentUser!.username);
     return success({ created_id: created.id });
 });
 
@@ -29,13 +29,13 @@ router.GET("/user/:id", allow(["D"]), async (req) => {
 
 router.PATCH("/user/:id", allow(["D"]), async (req) => {
     const dto = validateZod(UpdateUserDTOValidation, { ...req.body, id: req.params.id });
-    await userService.update(dto);
+    await userService.update(dto, req.currentUser!.username);
     return success();
 });
 
 router.POST("/user/:id/block", allow(["D"]), async (req) => {
     const dto = validateZod(IdDTOValidation, { id: req.params.id });
-    await userService.block(dto);
+    await userService.block(dto, req.currentUser!.username);
     return success();
 });
 

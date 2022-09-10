@@ -32,7 +32,7 @@ export abstract class BaseRepository<Schema extends IBase, SchemaModel extends M
         return this.model.updateOne({ _id: id }, { $set: data }).exec();
     }
 
-    deleteById(id: IBase["id"] | string) {
-        return this.updateById(id, { deleted: true, deleted_at: new Date() });
+    deleteById(id: IBase["id"] | string, deletedBy: string) {
+        return this.updateById(id, { deleted: true, deleted_at: new Date(), deleted_by: deletedBy });
     }
 }

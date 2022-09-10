@@ -12,32 +12,32 @@ class UserService extends BaseService<IUser> {
         super(userRepository, { NOT_FOUND: UserError.NOT_FOUND });
     }
 
-    async create(dto: CreateUserDTO): Promise<IUser> {
+    async create(dto: CreateUserDTO, createdBy: string): Promise<IUser> {
         const existedUser = await userRepository.findByUsername(dto.username);
         if (existedUser) {
             throw new HTTPError(UserError.USERNAME_EXISTED);
         }
 
         const hashedPassword = await hashPassword(dto.password);
-        return userRepository.create({ ...dto, password: hashedPassword, active: true });
+        return userRepository.create({ ...dto, password: hashedPassword, active: true, created_by: createdBy });
     }
 
     async getAll(): Promise<IUser[]> {
         return userRepository.find();
     }
 
-    async update(dto: UpdateUserDTO) {
+    async update(dto: UpdateUserDTO, updatedBy: string) {
         const { id, ...data } = dto;
         const user = await this.assertExisted(id);
         if (dto.password) {
             data.password = await hashPassword(dto.password);
         }
-        return userRepository.updateById(user.id, data);
+        return userRepository.updateById(user.id, { ...data, updated_by: updatedBy });
     }
 
-    async block({ id }: IdDTO) {
+    async block({ id }: IdDTO, updatedBy: string) {
         const user = await this.assertExisted(id);
-        return userRepository.updateById(user.id, { active: false });
+        return userRepository.updateById(user.id, { active: false, updated_by: updatedBy });
     }
 
     async getDetails({ id }: IdDTO): Promise<IUser> {
