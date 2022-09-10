@@ -1,5 +1,6 @@
 import { UserPermission } from "../types/models/IUser";
 import { z } from "zod";
+import { isOID } from "../utils/validation";
 
 export const CreateUserDTOValidation = z.object({
     username: z.string().min(5).max(20),
@@ -15,7 +16,7 @@ export const CreateUserDTOValidation = z.object({
 });
 
 export const UpdateUserDTOValidation = z.object({
-    id: z.string(),
+    id: z.string().refine(isOID),
     password: z
         .string()
         .min(8)

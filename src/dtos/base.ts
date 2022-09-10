@@ -1,4 +1,6 @@
 import { IBase } from "../types/models/IBase";
+import { z } from "zod";
+import { IdDTOValidation } from "../validations/base";
 
 export abstract class BaseResultDTO {
     created_at: Date;
@@ -13,3 +15,5 @@ export abstract class BaseResultDTO {
         this.updated_by = base.updated_by;
     }
 }
+
+export type IdDTO = z.infer<typeof IdDTOValidation>;

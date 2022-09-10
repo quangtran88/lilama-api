@@ -4,6 +4,7 @@ import userService from "../services/userService";
 import { success } from "../utils/response";
 import { UserResultDTO } from "../dtos/user";
 import { CustomRouter } from "../utils/router";
+import { IdDTOValidation } from "../validations/base";
 
 const router = new CustomRouter();
 
@@ -23,6 +24,11 @@ router.patch("/user", async (req) => {
     const dto = validateZod(UpdateUserDTOValidation, req.body);
     await userService.updateUser(dto);
     return success();
+});
+
+router.post("/user/block", async (req) => {
+    const dto = validateZod(IdDTOValidation, req.body);
+    await userService.blockUser(dto);
 });
 
 export default router.getRouter();
