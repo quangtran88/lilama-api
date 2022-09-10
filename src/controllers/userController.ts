@@ -20,14 +20,14 @@ router.get("/users", async () => {
     return { data: userDTOs };
 });
 
-router.patch("/user", async (req) => {
-    const dto = validateZod(UpdateUserDTOValidation, req.body);
+router.patch("/user/:id", async (req) => {
+    const dto = validateZod(UpdateUserDTOValidation, { ...req.body, id: req.params["id"] });
     await userService.updateUser(dto);
     return success();
 });
 
-router.post("/user/block", async (req) => {
-    const dto = validateZod(IdDTOValidation, req.body);
+router.post("/user/:id/block", async (req) => {
+    const dto = validateZod(IdDTOValidation, { id: req.params["id"] });
     await userService.blockUser(dto);
     return success();
 });
