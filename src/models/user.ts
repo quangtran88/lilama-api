@@ -1,9 +1,9 @@
 import { model, Schema } from "mongoose";
 import { defaultTimestamp } from "./base";
-import { IUserDocument, IUserModel, UserPermissions } from "../types/models/IUser";
+import { IUser, IUserModel, UserPermissions } from "../types/models/IUser";
 import paginate from "mongoose-paginate-v2";
 
-const UserSchema = new Schema(
+const UserSchema = new Schema<IUser>(
     {
         username: { type: String, require: true },
         password: { type: String, require: true },
@@ -27,4 +27,4 @@ UserSchema.plugin(paginate);
 UserSchema.index({ username: 1 });
 UserSchema.index({ active: 1 });
 
-export const User = model<IUserDocument, IUserModel>("User", UserSchema);
+export const User = model<IUser, IUserModel>("User", UserSchema);
