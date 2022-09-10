@@ -1,8 +1,7 @@
 import { ZodError, ZodType } from "zod";
 import { HTTPError } from "../errors/base";
-import { Error } from "mongoose";
+import { Error, Types } from "mongoose";
 import { StatusCodes } from "http-status-codes";
-import { Types } from "mongoose";
 
 export function validateZod<T>(schema: ZodType<T>, input: unknown) {
     try {

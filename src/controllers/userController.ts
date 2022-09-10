@@ -29,6 +29,7 @@ router.patch("/user", async (req) => {
 router.post("/user/block", async (req) => {
     const dto = validateZod(IdDTOValidation, req.body);
     await userService.blockUser(dto);
+    return success();
 });
 
 export default router.getRouter();
