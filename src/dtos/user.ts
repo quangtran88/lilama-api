@@ -1,7 +1,5 @@
 import { IUser } from "../types/models/IUser";
 import { BaseResultDTO } from "./base";
-import { z } from "zod";
-import { CreateUserDTOValidation, UpdateUserDTOValidation } from "../validations/user";
 
 export class UserResultDTO extends BaseResultDTO {
     id: string;
@@ -21,7 +19,3 @@ export class UserResultDTO extends BaseResultDTO {
         this.active = user.active;
     }
 }
-
-export type CreateUserDTO = z.infer<typeof CreateUserDTOValidation>;
-
-export type UpdateUserDTO = z.infer<typeof UpdateUserDTOValidation>;

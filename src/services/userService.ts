@@ -1,12 +1,12 @@
 import { IUser } from "../types/models/IUser";
 import { hashPassword } from "../utils/hash";
 import userRepository from "../repositories/userRepository";
-import { CreateUserDTO, UpdateUserDTO } from "../dtos/user";
 import { HTTPError } from "../errors/base";
 import { UserError } from "../errors/userErrors";
 import { IBase } from "../types/models/IBase";
 import { ObjectId } from "../utils/mongodb";
 import { IdDTO } from "../dtos/base";
+import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
 
 async function createUser(dto: CreateUserDTO): Promise<IUser> {
     const existedUser = await userRepository.findByUsername(dto.username);

@@ -1,10 +1,10 @@
-import { LoginDTO } from "../dtos/auth";
 import userRepository from "../repositories/userRepository";
 import { comparePasswordHash } from "../utils/hash";
 import { AuthError } from "../errors/authErrors";
 import { HTTPError } from "../errors/base";
 import { IUser } from "../types/models/IUser";
 import { UserError } from "../errors/userErrors";
+import { LoginDTO } from "../types/dtos/auth";
 
 async function verifyCredential(dto: LoginDTO): Promise<IUser> {
     const user = await userRepository.findByUsername(dto.username);
