@@ -9,7 +9,7 @@ const router = new CustomRouter();
 
 router.POST("/project", allow(["D", "C"]), async (req) => {
     const dto = validateZod(CreateProjectDTOValidation, req.body);
-    const { id: createdId } = await projectService.createProject(dto);
+    const { id: createdId } = await projectService.create(dto);
     return success({ createdId });
 });
 

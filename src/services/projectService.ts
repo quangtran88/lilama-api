@@ -4,7 +4,7 @@ import { HTTPError } from "../errors/base";
 import { ProjectError } from "../errors/projectErrors";
 
 class ProjectService {
-    async createProject(dto: CreateProjectDTO) {
+    async create(dto: CreateProjectDTO) {
         const existed = await projectRepository.findByCode(dto.code);
         if (existed) {
             throw new HTTPError(ProjectError.CODE_EXISTED);

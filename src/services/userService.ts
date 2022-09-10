@@ -12,7 +12,7 @@ class UserService extends BaseService<IUser> {
         super(userRepository, { NOT_FOUND: UserError.NOT_FOUND });
     }
 
-    async createUser(dto: CreateUserDTO): Promise<IUser> {
+    async create(dto: CreateUserDTO): Promise<IUser> {
         const existedUser = await userRepository.findByUsername(dto.username);
         if (existedUser) {
             throw new HTTPError(UserError.USERNAME_EXISTED);
@@ -22,11 +22,11 @@ class UserService extends BaseService<IUser> {
         return userRepository.create({ ...dto, password: hashedPassword, active: true });
     }
 
-    async getAllUsers(): Promise<IUser[]> {
+    async getAll(): Promise<IUser[]> {
         return userRepository.find();
     }
 
-    async updateUser(dto: UpdateUserDTO) {
+    async update(dto: UpdateUserDTO) {
         const { id, ...data } = dto;
         const user = await this.assertExisted(id);
         if (dto.password) {
@@ -35,12 +35,12 @@ class UserService extends BaseService<IUser> {
         return userRepository.updateById(user.id, data);
     }
 
-    async blockUser({ id }: IdDTO) {
+    async block({ id }: IdDTO) {
         const user = await this.assertExisted(id);
         return userRepository.updateById(user.id, { active: false });
     }
 
-    async getUserDetails({ id }: IdDTO): Promise<IUser> {
+    async getDetails({ id }: IdDTO): Promise<IUser> {
         return this.assertExisted(id);
     }
 }
