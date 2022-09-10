@@ -14,6 +14,10 @@ export function success(data?: object) {
     return { success: true, data };
 }
 
+export function data(data: object) {
+    return { data };
+}
+
 export async function handleError(res: Response, handler: () => Promise<any>) {
     try {
         await handler();

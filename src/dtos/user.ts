@@ -5,6 +5,7 @@ export class UserResultDTO extends BaseResultDTO {
     id: string;
     username: string;
     active: boolean;
+    permission: string;
     full_name?: string;
     email?: string;
     phone?: string;
@@ -17,5 +18,6 @@ export class UserResultDTO extends BaseResultDTO {
         this.email = user.email;
         this.phone = user.phone;
         this.active = user.active;
+        this.permission = user.permission;
     }
 }

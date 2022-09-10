@@ -45,9 +45,13 @@ async function blockUser({ id }: IdDTO) {
     return userRepository.updateById(user.id, { active: false });
 }
 
+async function getUserDetails({ id }: IdDTO): Promise<IUser> {
+    return assertUser(id);
+}
 export default {
     createUser,
     getAllUsers,
     updateUser,
     blockUser,
+    getUserDetails,
 };

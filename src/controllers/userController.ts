@@ -1,7 +1,7 @@
 import { CreateUserDTOValidation, UpdateUserDTOValidation } from "../validations/user";
 import { validateZod } from "../utils/validation";
 import userService from "../services/userService";
-import { success } from "../utils/response";
+import { data, success } from "../utils/response";
 import { UserResultDTO } from "../dtos/user";
 import { CustomRouter } from "../utils/router";
 import { IdDTOValidation } from "../validations/base";
@@ -17,17 +17,23 @@ router.post("/user", async (req) => {
 router.get("/users", async () => {
     const users = await userService.getAllUsers();
     const userDTOs = users.map((user) => new UserResultDTO(user));
-    return { data: userDTOs };
+    return data(userDTOs);
+});
+
+router.get("/user/:id", async (req) => {
+    const dto = validateZod(IdDTOValidation, { id: req.params.id });
+    const userDetails = await userService.getUserDetails(dto);
+    return data(new UserResultDTO(userDetails));
 });
 
 router.patch("/user/:id", async (req) => {
-    const dto = validateZod(UpdateUserDTOValidation, { ...req.body, id: req.params["id"] });
+    const dto = validateZod(UpdateUserDTOValidation, { ...req.body, id: req.params.id });
     await userService.updateUser(dto);
     return success();
 });
 
 router.post("/user/:id/block", async (req) => {
-    const dto = validateZod(IdDTOValidation, { id: req.params["id"] });
+    const dto = validateZod(IdDTOValidation, { id: req.params.id });
     await userService.blockUser(dto);
     return success();
 });
