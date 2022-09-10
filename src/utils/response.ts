@@ -22,6 +22,6 @@ export async function handleError(res: Response, handler: () => Promise<any>) {
         if (error instanceof HTTPError) {
             return responseError(error.tuple, res);
         }
-        res.status(StatusCodes.BAD_REQUEST).json(error);
+        return responseError([StatusCodes.BAD_REQUEST, (error as Error).message], res);
     }
 }
