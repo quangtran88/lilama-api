@@ -1,32 +1,15 @@
-import { IUser } from "../types/models/IUser";
-import { User } from "../models/user";
-import { FilterQuery, Types } from "mongoose";
-import { IBase } from "../types/models/IBase";
+import { IUser, IUserModel } from "../types/models/IUser";
+import { UserModel } from "../models/userModel";
+import { BaseRepository } from "./baseRepository";
 
-function create(user: Partial<IUser>) {
-    return User.create(user);
+class UserRepository extends BaseRepository<IUser, IUserModel> {
+    constructor() {
+        super(UserModel);
+    }
+
+    findByUsername(username: string) {
+        return this.findFirst({ username });
+    }
 }
 
-function findByUsername(username: string) {
-    return User.findOne({ username }).exec();
-}
-
-function findById(id: Types.ObjectId | string) {
-    return User.findById(id).exec();
-}
-
-function find(query?: FilterQuery<IUser>) {
-    return User.find(query || {}).exec();
-}
-
-function updateById(id: IBase["id"], data: Partial<IUser>) {
-    return User.updateOne({ _id: id }, { $set: data }).exec();
-}
-
-export default {
-    create,
-    findByUsername,
-    findById,
-    find,
-    updateById,
-};
+export default new UserRepository();

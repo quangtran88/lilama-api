@@ -6,21 +6,21 @@ import { IUser } from "../types/models/IUser";
 import { UserError } from "../errors/userErrors";
 import { LoginDTO } from "../types/dtos/auth";
 
-async function verifyCredential(dto: LoginDTO): Promise<IUser> {
-    const user = await userRepository.findByUsername(dto.username);
-    if (!user) {
-        throw new HTTPError(AuthError.INVALID_AUTHENTICATION);
+class AuthService {
+    async verifyCredential(dto: LoginDTO): Promise<IUser> {
+        const user = await userRepository.findByUsername(dto.username);
+        if (!user) {
+            throw new HTTPError(AuthError.INVALID_AUTHENTICATION);
+        }
+        if (!user.active) {
+            throw new HTTPError(UserError.BLOCKED);
+        }
+        const isValidPassword = await comparePasswordHash(dto.password, user.password);
+        if (!isValidPassword) {
+            throw new HTTPError(AuthError.INVALID_AUTHENTICATION);
+        }
+        return user;
     }
-    if (!user.active) {
-        throw new HTTPError(UserError.BLOCKED);
-    }
-    const isValidPassword = await comparePasswordHash(dto.password, user.password);
-    if (!isValidPassword) {
-        throw new HTTPError(AuthError.INVALID_AUTHENTICATION);
-    }
-    return user;
 }
 
-export default {
-    verifyCredential,
-};
+export default new AuthService();

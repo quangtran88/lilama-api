@@ -3,55 +3,46 @@ import { hashPassword } from "../utils/hash";
 import userRepository from "../repositories/userRepository";
 import { HTTPError } from "../errors/base";
 import { UserError } from "../errors/userErrors";
-import { IBase } from "../types/models/IBase";
-import { ObjectId } from "../utils/mongodb";
 import { IdDTO } from "../dtos/base";
 import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
+import { BaseService } from "./baseService";
 
-async function createUser(dto: CreateUserDTO): Promise<IUser> {
-    const existedUser = await userRepository.findByUsername(dto.username);
-    if (existedUser) {
-        throw new HTTPError(UserError.USERNAME_EXISTED);
+class UserService extends BaseService<IUser> {
+    constructor() {
+        super(userRepository, { NOT_FOUND: UserError.NOT_FOUND });
     }
 
-    const hashedPassword = await hashPassword(dto.password);
-    return userRepository.create({ ...dto, password: hashedPassword, active: true });
-}
+    async createUser(dto: CreateUserDTO): Promise<IUser> {
+        const existedUser = await userRepository.findByUsername(dto.username);
+        if (existedUser) {
+            throw new HTTPError(UserError.USERNAME_EXISTED);
+        }
 
-async function getAllUsers(): Promise<IUser[]> {
-    return userRepository.find();
-}
-
-async function assertUser(id: IBase["_id"] | string): Promise<IUser> {
-    const userId = new ObjectId(id);
-    const existed = await userRepository.findById(userId);
-    if (!existed) {
-        throw new HTTPError(UserError.NOT_FOUND);
+        const hashedPassword = await hashPassword(dto.password);
+        return userRepository.create({ ...dto, password: hashedPassword, active: true });
     }
-    return existed;
-}
 
-async function updateUser(dto: UpdateUserDTO) {
-    const { id, ...data } = dto;
-    const user = await assertUser(id);
-    if (dto.password) {
-        data.password = await hashPassword(dto.password);
+    async getAllUsers(): Promise<IUser[]> {
+        return userRepository.find();
     }
-    return userRepository.updateById(user.id, data);
+
+    async updateUser(dto: UpdateUserDTO) {
+        const { id, ...data } = dto;
+        const user = await this.assertExisted(id);
+        if (dto.password) {
+            data.password = await hashPassword(dto.password);
+        }
+        return userRepository.updateById(user.id, data);
+    }
+
+    async blockUser({ id }: IdDTO) {
+        const user = await this.assertExisted(id);
+        return userRepository.updateById(user.id, { active: false });
+    }
+
+    async getUserDetails({ id }: IdDTO): Promise<IUser> {
+        return this.assertExisted(id);
+    }
 }
 
-async function blockUser({ id }: IdDTO) {
-    const user = await assertUser(id);
-    return userRepository.updateById(user.id, { active: false });
-}
-
-async function getUserDetails({ id }: IdDTO): Promise<IUser> {
-    return assertUser(id);
-}
-export default {
-    createUser,
-    getAllUsers,
-    updateUser,
-    blockUser,
-    getUserDetails,
-};
+export default new UserService();

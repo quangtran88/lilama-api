@@ -1,5 +1,5 @@
 import express from "express";
-import { initDB } from "./utils/mongodb";
+import { initDB } from "./utils/mongo";
 import router from "./routers";
 import session from "express-session";
 import { SESSION_SECRET } from "./config/common";

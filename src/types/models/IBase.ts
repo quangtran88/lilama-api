@@ -7,4 +7,6 @@ export interface IBase extends Document {
     created_by: string;
     updated_at: Date;
     updated_by: string;
+    deleted?: boolean;
+    deleted_at?: Date;
 }

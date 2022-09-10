@@ -14,6 +14,22 @@ export class CustomRouter {
         return this.router;
     }
 
+    GET(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("get", path, handlers);
+    }
+
+    POST(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("post", path, handlers);
+    }
+
+    PATCH(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("patch", path, handlers);
+    }
+
+    PUT(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("put", path, handlers);
+    }
+
     private handle(
         method: "all" | "get" | "post" | "put" | "delete" | "patch" | "options" | "head",
         path: string,
@@ -26,21 +42,5 @@ export class CustomRouter {
                 return res.json(result);
             });
         });
-    }
-
-    get(path: string, ...handlers: RouterHandler[]) {
-        return this.handle("get", path, handlers);
-    }
-
-    post(path: string, ...handlers: RouterHandler[]) {
-        return this.handle("post", path, handlers);
-    }
-
-    patch(path: string, ...handlers: RouterHandler[]) {
-        return this.handle("patch", path, handlers);
-    }
-
-    put(path: string, ...handlers: RouterHandler[]) {
-        return this.handle("put", path, handlers);
     }
 }
