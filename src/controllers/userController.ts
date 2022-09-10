@@ -5,34 +5,35 @@ import { data, success } from "../utils/response";
 import { UserResultDTO } from "../dtos/user";
 import { CustomRouter } from "../utils/router";
 import { IdDTOValidation } from "../validations/base";
+import { allow } from "../utils/auth";
 
 const router = new CustomRouter();
 
-router.post("/user", async (req) => {
+router.post("/user", allow(["D"]), async (req) => {
     const dto = validateZod(CreateUserDTOValidation, req.body);
     const created = await userService.createUser(dto);
     return success({ created_id: created.id });
 });
 
-router.get("/users", async () => {
+router.get("/users", allow(["D"]), async () => {
     const users = await userService.getAllUsers();
     const userDTOs = users.map((user) => new UserResultDTO(user));
     return data(userDTOs);
 });
 
-router.get("/user/:id", async (req) => {
+router.get("/user/:id", allow(["D"]), async (req) => {
     const dto = validateZod(IdDTOValidation, { id: req.params.id });
     const userDetails = await userService.getUserDetails(dto);
     return data(new UserResultDTO(userDetails));
 });
 
-router.patch("/user/:id", async (req) => {
+router.patch("/user/:id", allow(["D"]), async (req) => {
     const dto = validateZod(UpdateUserDTOValidation, { ...req.body, id: req.params.id });
     await userService.updateUser(dto);
     return success();
 });
 
-router.post("/user/:id/block", async (req) => {
+router.post("/user/:id/block", allow(["D"]), async (req) => {
     const dto = validateZod(IdDTOValidation, { id: req.params.id });
     await userService.blockUser(dto);
     return success();

@@ -1,7 +1,7 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { handleError } from "./response";
 
-type RouterHandler = (req: Request, res: Response) => Promise<any>;
+type RouterHandler = (req: Request, res: Response, next: NextFunction) => Promise<any>;
 
 export class CustomRouter {
     private readonly router: Router;
@@ -14,39 +14,33 @@ export class CustomRouter {
         return this.router;
     }
 
-    get(path: string, handler: RouterHandler) {
-        return this.router.get(path, (req, res) => {
+    private handle(
+        method: "all" | "get" | "post" | "put" | "delete" | "patch" | "options" | "head",
+        path: string,
+        handlers: RouterHandler[]
+    ) {
+        const handler = handlers.pop();
+        return this.router[method](path, ...handlers, (req, res, next) => {
             return handleError(res, async () => {
-                const result = await handler(req, res);
+                const result = await handler!(req, res, next);
                 return res.json(result);
             });
         });
     }
 
-    post(path: string, handler: RouterHandler) {
-        return this.router.post(path, (req, res) => {
-            return handleError(res, async () => {
-                const result = await handler(req, res);
-                return res.json(result);
-            });
-        });
+    get(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("get", path, handlers);
     }
 
-    patch(path: string, handler: RouterHandler) {
-        return this.router.patch(path, (req, res) => {
-            return handleError(res, async () => {
-                const result = await handler(req, res);
-                return res.json(result);
-            });
-        });
+    post(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("post", path, handlers);
     }
 
-    put(path: string, handler: RouterHandler) {
-        return this.router.put(path, (req, res) => {
-            return handleError(res, async () => {
-                const result = await handler(req, res);
-                return res.json(result);
-            });
-        });
+    patch(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("patch", path, handlers);
+    }
+
+    put(path: string, ...handlers: RouterHandler[]) {
+        return this.handle("put", path, handlers);
     }
 }
