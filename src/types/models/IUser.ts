@@ -22,4 +22,6 @@ export interface IUser extends IBase {
     email?: string;
 }
 
+export interface IUserDocument extends IUser {}
+
 export interface IUserModel extends Model<IUser>, PaginateModel<IUser> {}

@@ -10,7 +10,7 @@ const router = new CustomRouter();
 router.POST("/login", async (req) => {
     const dto = validateZod(LoginDTOValidation, req.body);
     const user = await authService.verifyCredential(dto);
-    req.session[SESSION_AUTH_KEY] = user.id.toString();
+    req.session[SESSION_AUTH_KEY] = user._id.toString();
     return success();
 });
 

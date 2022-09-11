@@ -1,22 +1,44 @@
-import { IBase } from "../types/models/IBase";
-import { AnyKeys, Model, RootQuerySelector, QuerySelector, ApplyBasicQueryCasting } from "mongoose";
+import { IBase, IUpload } from "../types/models/IBase";
+import {
+    AnyKeys,
+    ApplyBasicQueryCasting,
+    ClientSession,
+    Model,
+    QuerySelector,
+    RootQuerySelector,
+    Types,
+} from "mongoose";
 
 type _FilterQuery<T> = {
     [P in keyof T]?: ApplyBasicQueryCasting<T> | QuerySelector<ApplyBasicQueryCasting<T[P]>>;
 } & RootQuerySelector<T>;
 
-export abstract class BaseRepository<Schema extends IBase, SchemaModel extends Model<Schema>> {
+export abstract class BaseRepository<
+    Schema extends IBase,
+    SchemaModel extends Model<Schema>,
+    SchemaUploadModel extends Model<IUpload<Schema>> = any
+> {
     private model: SchemaModel;
+    private uploadModel?: SchemaUploadModel;
 
-    protected constructor(model: SchemaModel) {
+    protected constructor(model: SchemaModel, uploadModel?: SchemaUploadModel) {
         this.model = model;
+        this.uploadModel = uploadModel;
     }
 
-    create(data: Partial<Schema>) {
-        return this.model.create(data);
+    insert(data: Partial<Schema>, session?: ClientSession) {
+        return this.model.create([data], { session })[0];
     }
 
-    findById(id: IBase["id"] | string) {
+    insertMany(data: Partial<Schema>[], session?: ClientSession) {
+        return this.model.create(data, { session });
+    }
+
+    insertUpload(data: Partial<Schema>[], uploadedBy: string, insertedIds: Types.ObjectId[], session?: ClientSession) {
+        return this.uploadModel!.create([{ data, uploaded_by: uploadedBy, inserted_ids: insertedIds }], { session });
+    }
+
+    findById(id: IBase["_id"] | string) {
         return this.findFirst({ _id: id });
     }
 
@@ -32,11 +54,11 @@ export abstract class BaseRepository<Schema extends IBase, SchemaModel extends M
         return this.find({ ...query, contributors: username });
     }
 
-    updateById(id: IBase["id"] | string, data: AnyKeys<Schema>) {
-        return this.model.updateOne({ _id: id }, { $set: data }).exec();
+    updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, session?: ClientSession) {
+        return this.model.updateOne({ _id: id }, { $set: data }, { session }).exec();
     }
 
-    deleteById(id: IBase["id"] | string, deletedBy: string) {
-        return this.updateById(id, { deleted: true, deleted_at: new Date(), deleted_by: deletedBy });
+    deleteById(id: IBase["_id"] | string, deletedBy: string, session?: ClientSession) {
+        return this.updateById(id, { deleted: true, deleted_at: new Date(), deleted_by: deletedBy }, session);
     }
 }

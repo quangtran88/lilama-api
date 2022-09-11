@@ -1,7 +1,7 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { handleError } from "./response";
 
-type RouterHandler = (req: Request, res: Response, next: NextFunction) => Promise<any>;
+type RouterHandler = (req: Request, res: Response, next: NextFunction) => Promise<any> | any;
 
 export class CustomRouter {
     private readonly router: Router;

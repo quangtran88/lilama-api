@@ -1,23 +1,32 @@
-import { CreateProjectDTO, UpdateProjectDTO } from "../types/dtos/project";
+import { CreateProjectDTO, UpdateProjectDTO, UploadProjectDTO } from "../types/dtos/project";
 import projectRepository from "../repositories/projectRepository";
 import { HTTPError } from "../errors/base";
 import { ProjectError } from "../errors/projectErrors";
 import { BaseService } from "./baseService";
 import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions, UserPermission } from "../types/models/IUser";
+import mongoose, { ClientSession } from "mongoose";
 
 class ProjectService extends BaseService<IProject> {
     constructor() {
         super(projectRepository, { NOT_FOUND: ProjectError.NOT_FOUND });
     }
 
-    async create(dto: CreateProjectDTO, createdBy: string) {
+    async create(dto: CreateProjectDTO, createdBy: string, session?: ClientSession) {
         const existed = await projectRepository.findByCode(dto.code);
         if (existed) {
             throw new HTTPError(ProjectError.CODE_EXISTED);
         }
 
-        return projectRepository.create({ ...dto, created_by: createdBy, contributors: [createdBy] });
+        return projectRepository.insert(
+            {
+                ...dto,
+                created_by: createdBy,
+                contributors: [createdBy],
+                need_review: true,
+            },
+            session
+        );
     }
 
     async update(dto: UpdateProjectDTO, updatedBy: string) {
@@ -30,6 +39,7 @@ class ProjectService extends BaseService<IProject> {
             ...dto,
             updated_by: updatedBy,
             contributors: Array.from(contributors),
+            need_review: false,
         });
     }
 
@@ -41,6 +51,36 @@ class ProjectService extends BaseService<IProject> {
             return projectRepository.findContributed(currentUser.username);
         }
         return [];
+    }
+
+    async verifyUpload(data: UploadProjectDTO[]) {
+        const uploadData: UploadProjectDTO[] = [];
+        for (const project of data) {
+            const existed = await projectRepository.findByCode(project.code);
+            if (existed) continue;
+            uploadData.push(project);
+        }
+        return uploadData;
+    }
+
+    async commitUpload(data: UploadProjectDTO[], uploadedBy: string) {
+        await this.verifyUpload(data);
+        let result: IProject[] = [];
+        const session = await mongoose.startSession();
+        await session.withTransaction(async (s) => {
+            const created = await projectRepository.insertMany(
+                data.map((d) => ({ ...d, created_by: uploadedBy, contributors: [uploadedBy], need_review: true })),
+                s
+            );
+            await projectRepository.insertUpload(
+                data,
+                uploadedBy,
+                created.map((c) => c._id),
+                s
+            );
+            result = created;
+        });
+        return result;
     }
 }
 

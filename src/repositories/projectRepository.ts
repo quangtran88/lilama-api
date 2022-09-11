@@ -1,10 +1,10 @@
-import { IProject, IProjectModel } from "../types/models/IProject";
-import { ProjectModel } from "../models/projectModel";
+import { IProject, IProjectModel, IProjectUploadModel } from "../types/models/IProject";
+import { ProjectModel, ProjectUploadModel } from "../models/projectModel";
 import { BaseRepository } from "./baseRepository";
 
-class ProjectRepository extends BaseRepository<IProject, IProjectModel> {
+class ProjectRepository extends BaseRepository<IProject, IProjectModel, IProjectUploadModel> {
     constructor() {
-        super(ProjectModel);
+        super(ProjectModel, ProjectUploadModel);
     }
 
     async findByCode(code: IProject["code"]) {

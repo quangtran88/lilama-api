@@ -14,7 +14,7 @@ export abstract class BaseResultDTO {
         this.created_by = base.created_by;
         this.updated_at = base.updated_at;
         this.updated_by = base.updated_by;
-        this.id = base.id.toString();
+        this.id = base._id.toString();
     }
 }
 

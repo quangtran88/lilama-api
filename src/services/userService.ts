@@ -19,7 +19,7 @@ class UserService extends BaseService<IUser> {
         }
 
         const hashedPassword = await hashPassword(dto.password);
-        return userRepository.create({ ...dto, password: hashedPassword, active: true, created_by: createdBy });
+        return userRepository.insert({ ...dto, password: hashedPassword, active: true, created_by: createdBy });
     }
 
     async getAll(): Promise<IUser[]> {
