@@ -10,6 +10,8 @@ export enum UserPermission {
 
 export const UserPermissions = [UserPermission.A, UserPermission.B, UserPermission.C, UserPermission.D];
 
+export const ReadAllPermissions = [UserPermission.B, UserPermission.D];
+
 export interface IUser extends IBase {
     username: string;
     password: string;

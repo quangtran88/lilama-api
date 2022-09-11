@@ -12,12 +12,12 @@ export abstract class BaseRepository<Schema extends IBase, SchemaModel extends M
         this.model = model;
     }
 
-    create(data: AnyKeys<Schema>) {
-        return this.model.create({ data });
+    create(data: Partial<Schema>) {
+        return this.model.create(data);
     }
 
     findById(id: IBase["id"] | string) {
-        return this.findFirst({ id });
+        return this.findFirst({ _id: id });
     }
 
     find(query?: _FilterQuery<Schema>) {
@@ -26,6 +26,10 @@ export abstract class BaseRepository<Schema extends IBase, SchemaModel extends M
 
     findFirst(query?: _FilterQuery<Schema>) {
         return this.model.findOne({ ...query, deleted: { $exists: false } }).exec();
+    }
+
+    findContributed(username: string, query?: _FilterQuery<Schema>) {
+        return this.find({ ...query, contributors: username });
     }
 
     updateById(id: IBase["id"] | string, data: AnyKeys<Schema>) {

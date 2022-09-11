@@ -1,4 +1,6 @@
 import { z } from "zod";
-import { CreateProjectDTOValidation } from "../../validations/project";
+import { CreateProjectDTOValidation, UpdateProjectDTOValidation } from "../../validations/project";
 
 export type CreateProjectDTO = z.infer<typeof CreateProjectDTOValidation>;
+
+export type UpdateProjectDTO = z.infer<typeof UpdateProjectDTOValidation>;

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { IdDTOValidation } from "../validations/base";
 
 export abstract class BaseResultDTO {
+    id: string;
     created_at: Date;
     created_by: string;
     updated_at: Date;
@@ -13,6 +14,7 @@ export abstract class BaseResultDTO {
         this.created_by = base.created_by;
         this.updated_at = base.updated_at;
         this.updated_by = base.updated_by;
+        this.id = base.id.toString();
     }
 }
 

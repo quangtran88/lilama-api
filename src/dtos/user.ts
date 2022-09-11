@@ -2,7 +2,6 @@ import { IUser } from "../types/models/IUser";
 import { BaseResultDTO } from "./base";
 
 export class UserResultDTO extends BaseResultDTO {
-    id: string;
     username: string;
     active: boolean;
     permission: string;
@@ -12,7 +11,6 @@ export class UserResultDTO extends BaseResultDTO {
 
     constructor(user: IUser) {
         super(user);
-        this.id = user.id.toString();
         this.username = user.username;
         this.full_name = user.full_name;
         this.email = user.email;

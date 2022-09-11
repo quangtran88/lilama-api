@@ -18,8 +18,12 @@ export function generateSchema<ISchema>(schemaDefinition: SchemaDefinition<ISche
     return new Schema<ISchema>(
         {
             ...schemaDefinition,
+            contributors: [String],
             deleted: Boolean,
             deleted_at: Date,
+            deleted_by: String,
+            created_by: String,
+            updated_by: String,
         },
         { timestamps: defaultTimestamp, ...options }
     );
