@@ -13,5 +13,5 @@ export const IMPORT_PROJECT_KEY: ExcelMapping<UploadProjectDTO> = {
 export const IMPORT_BINDING_PACKAGE_KEY: ExcelMapping<UploadBindingPackageDTO> = {
     code: "Tên gói thầu",
     description: "Thông tin gói thầu",
-    projectCode: "Tên dự án",
+    project_code: "Tên dự án",
 };

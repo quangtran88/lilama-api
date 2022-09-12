@@ -1,10 +1,16 @@
-import { generateSchema } from "../utils/mongo";
-import { IBindingPackage, IBindingPackageDocument, IBindingPackageModel } from "../types/models/IBindingPackage";
-import { IProject } from "../types/models/IProject";
+import { generateSchema, generateUploadSchema } from "../utils/mongo";
+import {
+    IBindingPackage,
+    IBindingPackageDocument,
+    IBindingPackageModel,
+    IBindingPackageUpload,
+    IBindingPackageUploadDocument,
+    IBindingPackageUploadModel,
+} from "../types/models/IBindingPackage";
 import paginate from "mongoose-paginate-v2";
 import { model } from "mongoose";
 
-const RelProjectSchema = generateSchema<IProject>({
+const RelProjectSchema = generateSchema({
     need_review: Boolean,
     code: String,
 });
@@ -12,7 +18,14 @@ const RelProjectSchema = generateSchema<IProject>({
 const BindingPackageSchema = generateSchema<IBindingPackage>({
     code: String,
     description: String,
-    project: RelProjectSchema,
+    need_review: Boolean,
+    project: { type: RelProjectSchema },
+});
+
+const BindingPackageUploadSchema = generateUploadSchema<IBindingPackageUpload>({
+    project_code: String,
+    code: String,
+    description: String,
 });
 
 BindingPackageSchema.plugin(paginate);
@@ -23,5 +36,11 @@ BindingPackageSchema.index({ "project.code": 1 });
 export const BindingPackageModel = model<IBindingPackageDocument, IBindingPackageModel>(
     "BindingPackage",
     BindingPackageSchema,
-    "binding_packages"
+    "binding_packages",
+);
+
+export const BindingPackageUploadModel = model<IBindingPackageUploadDocument, IBindingPackageUploadModel>(
+    "BindingPackageUpload",
+    BindingPackageUploadSchema,
+    "binding_package_uploads",
 );

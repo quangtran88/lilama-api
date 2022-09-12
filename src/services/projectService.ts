@@ -82,21 +82,22 @@ class ProjectService extends BaseService<IProject> {
         return uploadData;
     }
 
-    async commitUpload(data: UploadProjectDTO[], uploadedBy: string) {
-        await this.verifyUpload(data);
+    async commitUpload(dtoList: UploadProjectDTO[], uploadedBy: string) {
+        const data = await this.verifyUpload(dtoList);
         let result: IProject[] = [];
         const session = await mongoose.startSession();
         await session.withTransaction(async (s) => {
             const created = await projectRepository.insertMany(
-                data.map((d) => ({ ...d, created_by: uploadedBy, contributors: [uploadedBy], need_review: true })),
-                s
+                data.map((d) => ({
+                    ...d,
+                    created_by: uploadedBy,
+                    contributors: [uploadedBy],
+                    need_review: true,
+                })),
+                s,
             );
-            await projectRepository.insertUpload(
-                data,
-                uploadedBy,
-                created.map((c) => c._id),
-                s
-            );
+            const createdIds = created.map((c) => c._id);
+            await projectRepository.insertUpload(data, uploadedBy, createdIds, s);
             result = created;
         });
         return result;

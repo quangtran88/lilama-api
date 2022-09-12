@@ -6,13 +6,9 @@ export interface IProject extends IBase<IProject> {
     description: string;
     need_review?: boolean;
 }
-
 export interface IProjectDocument extends IProject {}
-
 export interface IProjectModel extends Model<IProject>, PaginateModel<IProject> {}
 
 export interface IProjectUpload extends IProject {}
-
 export interface IProjectUploadDocument extends IUpload<IProjectUpload> {}
-
 export interface IProjectUploadModel extends Model<IUpload<IProject>>, PaginateModel<IUpload<IProject>> {}

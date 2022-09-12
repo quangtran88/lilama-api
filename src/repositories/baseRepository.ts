@@ -14,11 +14,10 @@ type _FilterQuery<T> = {
     [P in keyof T]?: ApplyBasicQueryCasting<T> | QuerySelector<ApplyBasicQueryCasting<T[P]>>;
 } & RootQuerySelector<T>;
 
-export abstract class BaseRepository<
-    Schema extends IBase,
+export abstract class BaseRepository<Schema extends IBase,
     SchemaModel extends Model<Schema> & PaginateModel<Schema>,
-    SchemaUploadModel extends Model<IUpload<Schema>> = any
-> {
+    SchemaUpload extends IBase = any,
+    SchemaUploadModel extends Model<IUpload<any>> = any> {
     private model: SchemaModel;
     private uploadModel?: SchemaUploadModel;
 
@@ -37,7 +36,12 @@ export abstract class BaseRepository<
         return this.model.create(withHistories, { session });
     }
 
-    insertUpload(data: Partial<Schema>[], uploadedBy: string, insertedIds: Types.ObjectId[], session?: ClientSession) {
+    insertUpload(
+        data: Partial<SchemaUpload>[],
+        uploadedBy: string,
+        insertedIds: Types.ObjectId[],
+        session?: ClientSession,
+    ) {
         return this.uploadModel!.create([{ data, uploaded_by: uploadedBy, inserted_ids: insertedIds }], { session });
     }
 
@@ -78,6 +82,10 @@ export abstract class BaseRepository<
 
     updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, session?: ClientSession) {
         return this.model.updateOne({ _id: id }, { $set: data, $push: { histories: data } }, { session }).exec();
+    }
+
+    addContributor(ids: (IBase["_id"] | string)[], contributor: string) {
+        return this.model.updateMany({ _id: { $in: ids } }, { $addToSet: { contributors: contributor } }).exec();
     }
 
     deleteById(id: IBase["_id"] | string, deletedBy: string, session?: ClientSession) {

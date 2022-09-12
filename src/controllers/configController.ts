@@ -21,7 +21,10 @@ r.GET("/configs", allow(["D"]), async () => {
 });
 
 r.POST("/config/:key", allow(["D"]), async ({ params, body }) => {
-    const { key, value } = validateZod(SetConfigDTOValidation, { key: params.key, value: body.value });
+    const { key, value } = validateZod(SetConfigDTOValidation, {
+        key: params.key,
+        value: body.value,
+    });
     await configService.set(key, value);
     return success();
 });
