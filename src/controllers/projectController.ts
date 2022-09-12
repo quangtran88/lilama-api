@@ -1,13 +1,13 @@
 import { CustomRouter } from "../utils/router";
 import { allow } from "../utils/auth";
-import { validateZod } from "../utils/validation";
+import { validatePaginate, validateZod } from "../utils/validation";
 import {
     CreateProjectDTOValidation,
     UpdateProjectDTOValidation,
     UploadProjectDTOValidation,
 } from "../validations/project";
 import projectService from "../services/projectService";
-import { paginate, success } from "../utils/response";
+import { data, paginate, success } from "../utils/response";
 import { ProjectResultDTO } from "../dtos/project";
 import { file, validateFile } from "../utils/upload";
 import { IMPORT_PROJECT_KEY } from "../config/excelMaping";
@@ -17,10 +17,16 @@ import { IdDTOValidation } from "../validations/base";
 const router = new CustomRouter();
 
 router.GET("/projects", allow(["D", "C", "B"]), async ({ currentUser, query }) => {
-    const { page = 1, limit = 20 } = query;
-    const paginateProjects = await projectService.getPage(currentUser!, +page, +limit);
+    const { page, limit } = validatePaginate(query);
+    const paginateProjects = await projectService.getPage(currentUser!, page, limit);
     const data = paginateProjects.docs.map((p) => new ProjectResultDTO(p));
     return paginate(data, paginateProjects);
+});
+
+router.GET("/project/:id", allow(["D", "C", "B"]), async ({ currentUser, params }) => {
+    const dto = validateZod(IdDTOValidation, { id: params.id });
+    const project = await projectService.getDetails(dto.id, currentUser!);
+    return data(project);
 });
 
 router.POST("/project", allow(["D", "C"]), async (req) => {

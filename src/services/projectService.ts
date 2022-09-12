@@ -7,6 +7,7 @@ import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions, UserPermission } from "../types/models/IUser";
 import mongoose, { ClientSession, PaginateResult } from "mongoose";
 import { IdDTO } from "../dtos/base";
+import { ProjectResultDTO } from "../dtos/project";
 
 class ProjectService extends BaseService<IProject> {
     constructor() {
@@ -59,6 +60,16 @@ class ProjectService extends BaseService<IProject> {
             return projectRepository.findPage({}, page, limit);
         }
         return projectRepository.findContributedPage(currentUser.username, {}, page, limit);
+    }
+
+    async getDetails(id: string, currentUser: IUser) {
+        let project: IProject | null;
+        if (ReadAllPermissions.includes(currentUser.permission)) {
+            project = await projectRepository.findById(id);
+        } else {
+            project = await projectRepository.findByIdContributed(currentUser.username, id);
+        }
+        return project && new ProjectResultDTO(project);
     }
 
     async verifyUpload(data: UploadProjectDTO[]) {

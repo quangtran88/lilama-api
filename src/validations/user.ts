@@ -16,7 +16,7 @@ export const CreateUserDTOValidation = z.object({
 });
 
 export const UpdateUserDTOValidation = z.object({
-    id: z.string().refine(isOID),
+    id: z.string().refine((s) => isOID(s)),
     password: z
         .string()
         .min(8)

@@ -45,6 +45,10 @@ export abstract class BaseRepository<
         return this.findFirst({ _id: id });
     }
 
+    findByIdContributed(username: string, id: IBase["_id"] | string) {
+        return this.findFirstContributed(username, { _id: id });
+    }
+
     find(query?: _FilterQuery<Schema>) {
         return this.model.find({ ...query, deleted: { $exists: false } }).exec();
     }
@@ -57,14 +61,18 @@ export abstract class BaseRepository<
         return this.model.findOne({ ...query, deleted: { $exists: false } }).exec();
     }
 
+    findFirstContributed(username: string, query?: _FilterQuery<Schema>) {
+        return this.findFirst({ ...query, contributors: username });
+    }
+
     findContributed(username: string, query?: _FilterQuery<Schema>) {
-        return this.find({ ...query, contributors: username, deleted: { $exists: false } });
+        return this.find({ ...query, contributors: username });
     }
 
     findContributedPage(username: string, query?: _FilterQuery<Schema>, page = 1, limit = 20) {
         return this.model.paginate(
             { ...query, contributors: username, deleted: { $exists: false } },
-            { page, limit, lean: true }
+            { page, limit, lean: true },
         );
     }
 
