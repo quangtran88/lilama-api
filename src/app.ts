@@ -15,7 +15,7 @@ export async function initApp() {
     const store = new MongoDBStore({ uri: getUri(), collection: "sessions" });
     store.on("error", (error) => console.log(error));
 
-    app.use(cors());
+    app.use(cors({ credentials: true, origin: "*" }));
     app.use(morgan("combined"));
     app.use(express.json());
     app.use(
