@@ -6,6 +6,7 @@ import { BaseService } from "./baseService";
 import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions, UserPermission } from "../types/models/IUser";
 import mongoose, { ClientSession, PaginateResult } from "mongoose";
+import { IdDTO } from "../dtos/base";
 
 class ProjectService extends BaseService<IProject> {
     constructor() {
@@ -88,6 +89,11 @@ class ProjectService extends BaseService<IProject> {
             result = created;
         });
         return result;
+    }
+
+    async disable({ id }: IdDTO, updatedBy: string) {
+        await this.assertExisted(id);
+        return projectRepository.updateById(id, { need_review: true, updated_by: updatedBy });
     }
 }
 

@@ -12,6 +12,7 @@ import { ProjectResultDTO } from "../dtos/project";
 import { file, validateFile } from "../utils/upload";
 import { IMPORT_PROJECT_KEY } from "../config/excelMaping";
 import { z } from "zod";
+import { IdDTOValidation } from "../validations/base";
 
 const router = new CustomRouter();
 
@@ -43,6 +44,12 @@ router.POST("/project/upload/commit", allow(["D", "C"]), async ({ body, currentU
 router.PATCH("/project/:id", allow(["D"]), async (req) => {
     const dto = validateZod(UpdateProjectDTOValidation, { ...req.body, id: req.params.id });
     await projectService.update(dto, req.currentUser!.username);
+    return success();
+});
+
+router.POST("/project/:id/disable", allow(["D"]), async ({ params, currentUser }) => {
+    const dto = validateZod(IdDTOValidation, { id: params.id });
+    await projectService.disable(dto, currentUser!.username);
     return success();
 });
 
