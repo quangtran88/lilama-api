@@ -1,6 +1,8 @@
 import { HTTPError, HTTPErrorTuple } from "../errors/base";
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { PaginateResult } from "mongoose";
+import { IBase } from "../types/models/IBase";
 
 export function responseError([statusCode, message]: HTTPErrorTuple, res: Response) {
     return res.status(statusCode).json({ error: message });
@@ -16,6 +18,10 @@ export function success(data?: object) {
 
 export function data(data: object) {
     return { data };
+}
+
+export function paginate(data: object, { page, limit, totalDocs }: PaginateResult<IBase>) {
+    return { data, page, limit, total: totalDocs };
 }
 
 export async function handleError(res: Response, handler: () => Promise<any>) {

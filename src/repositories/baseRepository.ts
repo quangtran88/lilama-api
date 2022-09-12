@@ -4,6 +4,7 @@ import {
     ApplyBasicQueryCasting,
     ClientSession,
     Model,
+    PaginateModel,
     QuerySelector,
     RootQuerySelector,
     Types,
@@ -15,7 +16,7 @@ type _FilterQuery<T> = {
 
 export abstract class BaseRepository<
     Schema extends IBase,
-    SchemaModel extends Model<Schema>,
+    SchemaModel extends Model<Schema> & PaginateModel<Schema>,
     SchemaUploadModel extends Model<IUpload<Schema>> = any
 > {
     private model: SchemaModel;
@@ -46,12 +47,23 @@ export abstract class BaseRepository<
         return this.model.find({ ...query, deleted: { $exists: false } }).exec();
     }
 
+    findPage(query?: _FilterQuery<Schema>, page = 1, limit = 20) {
+        return this.model.paginate({ ...query, deleted: { $exists: false } }, { page, limit, lean: true });
+    }
+
     findFirst(query?: _FilterQuery<Schema>) {
         return this.model.findOne({ ...query, deleted: { $exists: false } }).exec();
     }
 
     findContributed(username: string, query?: _FilterQuery<Schema>) {
-        return this.find({ ...query, contributors: username });
+        return this.find({ ...query, contributors: username, deleted: { $exists: false } });
+    }
+
+    findContributedPage(username: string, query?: _FilterQuery<Schema>, page = 1, limit = 20) {
+        return this.model.paginate(
+            { ...query, contributors: username, deleted: { $exists: false } },
+            { page, limit, lean: true }
+        );
     }
 
     updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, session?: ClientSession) {

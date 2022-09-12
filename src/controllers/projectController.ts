@@ -7,7 +7,7 @@ import {
     UploadProjectDTOValidation,
 } from "../validations/project";
 import projectService from "../services/projectService";
-import { data, success } from "../utils/response";
+import { paginate, success } from "../utils/response";
 import { ProjectResultDTO } from "../dtos/project";
 import { file, validateFile } from "../utils/upload";
 import { IMPORT_PROJECT_KEY } from "../config/excelMaping";
@@ -15,9 +15,11 @@ import { z } from "zod";
 
 const router = new CustomRouter();
 
-router.GET("/projects", allow(["D", "C", "B"]), async ({ currentUser }) => {
-    const projects = await projectService.getAll(currentUser!);
-    return data(projects.map((p) => new ProjectResultDTO(p)));
+router.GET("/projects", allow(["D", "C", "B"]), async ({ currentUser, query }) => {
+    const { page = 1, limit = 20 } = query;
+    const paginateProjects = await projectService.getPage(currentUser!, +page, +limit);
+    const data = paginateProjects.docs.map((p) => new ProjectResultDTO(p));
+    return paginate(data, paginateProjects);
 });
 
 router.POST("/project", allow(["D", "C"]), async (req) => {

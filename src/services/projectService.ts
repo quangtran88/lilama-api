@@ -5,7 +5,7 @@ import { ProjectError } from "../errors/projectErrors";
 import { BaseService } from "./baseService";
 import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions, UserPermission } from "../types/models/IUser";
-import mongoose, { ClientSession } from "mongoose";
+import mongoose, { ClientSession, PaginateResult } from "mongoose";
 
 class ProjectService extends BaseService<IProject> {
     constructor() {
@@ -51,6 +51,13 @@ class ProjectService extends BaseService<IProject> {
             return projectRepository.findContributed(currentUser.username);
         }
         return [];
+    }
+
+    async getPage(currentUser: IUser, page = 1, limit = 20): Promise<PaginateResult<IProject>> {
+        if (ReadAllPermissions.includes(currentUser.permission)) {
+            return projectRepository.findPage({}, page, limit);
+        }
+        return projectRepository.findContributedPage(currentUser.username, {}, page, limit);
     }
 
     async verifyUpload(data: UploadProjectDTO[]) {
