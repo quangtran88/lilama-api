@@ -1,14 +1,28 @@
-import { Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { responseError } from "./response";
 import { AuthError } from "../errors/authErrors";
-import { SESSION_AUTH_KEY } from "../config/common";
+import { AUTH_HEADER, JWT_SECRET } from "../config/common";
 import userRepository from "../repositories/userRepository";
 import { UserError } from "../errors/userErrors";
-import { Request } from "express";
-import { UserPermission } from "../types/models/IUser";
+import { IUser, UserPermission } from "../types/models/IUser";
+import jwt from "jsonwebtoken";
+
+function verifyJwt(token): IUser["_id"] | false {
+    try {
+        const payload: any = jwt.verify(token, JWT_SECRET);
+        return payload.id;
+    } catch (error) {
+        return false;
+    }
+}
 
 export async function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-    const userId = req.session[SESSION_AUTH_KEY];
+    const token = req.header(AUTH_HEADER);
+    if (!token) {
+        return responseError(AuthError.NOT_AUTHENTICATED, res);
+    }
+
+    const userId = verifyJwt(token);
     if (!userId) {
         return responseError(AuthError.NOT_AUTHENTICATED, res);
     }
