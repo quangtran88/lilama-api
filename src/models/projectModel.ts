@@ -24,6 +24,7 @@ const ProjectUploadSchema = generateUploadSchema<IProjectUpload>({
 ProjectSchema.plugin(paginate);
 
 export const ProjectModel = model<IProjectDocument, IProjectModel>("Project", ProjectSchema);
+
 export const ProjectUploadModel = model<IProjectUploadDocument, IProjectUploadModel>(
     "ProjectUpload",
     ProjectUploadSchema,

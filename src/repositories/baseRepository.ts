@@ -17,7 +17,8 @@ type _FilterQuery<T> = {
 export abstract class BaseRepository<
     Schema extends IBase,
     SchemaModel extends Model<Schema> & PaginateModel<Schema>,
-    SchemaUploadModel extends Model<IUpload<Schema>> = any> {
+    SchemaUploadModel extends Model<IUpload<Schema>> = any
+> {
     private model: SchemaModel;
     private uploadModel?: SchemaUploadModel;
 

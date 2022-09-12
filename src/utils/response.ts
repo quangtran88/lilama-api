@@ -16,7 +16,7 @@ export function success(data?: object) {
     return { success: true, data };
 }
 
-export function data(data: object) {
+export function data(data: any) {
     return { data };
 }
 
