@@ -1,6 +1,6 @@
 import { Document, Types } from "mongoose";
 
-export interface IBase extends Document {
+export interface IBase<S = any> extends Document {
     _id: Types.ObjectId;
     contributors?: string[];
     created_at: Date;
@@ -10,6 +10,7 @@ export interface IBase extends Document {
     deleted?: boolean;
     deleted_at?: Date;
     deleted_by?: string;
+    histories?: S[];
 }
 
 export interface IUpload<S> {

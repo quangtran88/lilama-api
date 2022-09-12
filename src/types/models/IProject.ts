@@ -1,7 +1,7 @@
 import { IBase, IUpload } from "./IBase";
 import { Model, PaginateModel } from "mongoose";
 
-export interface IProject extends IBase {
+export interface IProject extends IBase<IProject> {
     code: string;
     description: string;
     need_review?: boolean;

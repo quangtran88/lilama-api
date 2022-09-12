@@ -12,7 +12,7 @@ export const UserPermissions = [UserPermission.A, UserPermission.B, UserPermissi
 
 export const ReadAllPermissions = [UserPermission.B, UserPermission.D];
 
-export interface IUser extends IBase {
+export interface IUser extends IBase<IUser> {
     username: string;
     password: string;
     permission: UserPermission;

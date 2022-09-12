@@ -24,7 +24,7 @@ router.GET("/projects", allow(["D", "C", "B"]), async ({ currentUser, query }) =
 
 router.POST("/project", allow(["D", "C"]), async (req) => {
     const dto = validateZod(CreateProjectDTOValidation, req.body);
-    const { id: createdId } = await projectService.create(dto, req.currentUser!.username);
+    const { _id: createdId } = await projectService.create(dto, req.currentUser!.username);
     return success({ createdId });
 });
 

@@ -17,8 +17,7 @@ type _FilterQuery<T> = {
 export abstract class BaseRepository<
     Schema extends IBase,
     SchemaModel extends Model<Schema> & PaginateModel<Schema>,
-    SchemaUploadModel extends Model<IUpload<Schema>> = any
-> {
+    SchemaUploadModel extends Model<IUpload<Schema>> = any> {
     private model: SchemaModel;
     private uploadModel?: SchemaUploadModel;
 
@@ -27,12 +26,14 @@ export abstract class BaseRepository<
         this.uploadModel = uploadModel;
     }
 
-    insert(data: Partial<Schema>, session?: ClientSession) {
-        return this.model.create([data], { session })[0];
+    async insert(data: Partial<Schema>, session?: ClientSession): Promise<Schema> {
+        const created = await this.model.create([{ ...data, histories: data }], { session });
+        return created[0];
     }
 
     insertMany(data: Partial<Schema>[], session?: ClientSession) {
-        return this.model.create(data, { session });
+        const withHistories = data.map((data) => ({ ...data, histories: data }));
+        return this.model.create(withHistories, { session });
     }
 
     insertUpload(data: Partial<Schema>[], uploadedBy: string, insertedIds: Types.ObjectId[], session?: ClientSession) {
@@ -67,7 +68,7 @@ export abstract class BaseRepository<
     }
 
     updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, session?: ClientSession) {
-        return this.model.updateOne({ _id: id }, { $set: data }, { session }).exec();
+        return this.model.updateOne({ _id: id }, { $set: data, $push: { histories: data } }, { session }).exec();
     }
 
     deleteById(id: IBase["_id"] | string, deletedBy: string, session?: ClientSession) {

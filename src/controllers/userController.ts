@@ -12,7 +12,7 @@ const router = new CustomRouter();
 router.POST("/user", allow(["D"]), async (req) => {
     const dto = validateZod(CreateUserDTOValidation, req.body);
     const created = await userService.create(dto, req.currentUser!.username);
-    return success({ created_id: created.id });
+    return success({ created_id: created._id });
 });
 
 router.GET("/users", allow(["D"]), async () => {
