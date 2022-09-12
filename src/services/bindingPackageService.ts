@@ -37,8 +37,6 @@ class BindingPackageService extends BaseService<IBindingPackage> {
             .map((d) => ({
                 code: d.project_code,
                 need_review: true,
-                contributors: [uploadedBy],
-                created_by: uploadedBy,
             }));
         const bindingPackagesToInsert: Partial<IBindingPackage>[] = data.map((d) => ({
             ...d,
@@ -46,8 +44,6 @@ class BindingPackageService extends BaseService<IBindingPackage> {
                 code: d.project_code,
                 need_review: !d.project || d.project.need_review,
             },
-            created_by: uploadedBy,
-            contributors: [uploadedBy],
             need_review: true,
         }));
         const projectIdsToContribute = data.filter((d) => d.project?._id).map((d) => d.project!._id);
@@ -55,10 +51,10 @@ class BindingPackageService extends BaseService<IBindingPackage> {
 
         const session = await mongoose.startSession();
         await session.withTransaction(async (s) => {
-            await projectRepository.insertMany(projectsToInsert, s);
+            await projectRepository.insertMany(projectsToInsert, uploadedBy, s);
             await projectRepository.addContributor(projectIdsToContribute, uploadedBy);
 
-            const created = await bindingPackageRepository.insertMany(bindingPackagesToInsert, s);
+            const created = await bindingPackageRepository.insertMany(bindingPackagesToInsert, uploadedBy, s);
 
             const createdIds = created.map((c) => c._id);
             await bindingPackageRepository.insertUpload(data, uploadedBy, createdIds, s);

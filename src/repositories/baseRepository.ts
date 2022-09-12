@@ -14,10 +14,12 @@ type _FilterQuery<T> = {
     [P in keyof T]?: ApplyBasicQueryCasting<T> | QuerySelector<ApplyBasicQueryCasting<T[P]>>;
 } & RootQuerySelector<T>;
 
-export abstract class BaseRepository<Schema extends IBase,
+export abstract class BaseRepository<
+    Schema extends IBase,
     SchemaModel extends Model<Schema> & PaginateModel<Schema>,
     SchemaUpload extends IBase = any,
-    SchemaUploadModel extends Model<IUpload<any>> = any> {
+    SchemaUploadModel extends Model<IUpload<any>> = any
+> {
     private model: SchemaModel;
     private uploadModel?: SchemaUploadModel;
 
@@ -26,13 +28,28 @@ export abstract class BaseRepository<Schema extends IBase,
         this.uploadModel = uploadModel;
     }
 
-    async insert(data: Partial<Schema>, session?: ClientSession): Promise<Schema> {
-        const created = await this.model.create([{ ...data, histories: data }], { session });
+    async insert(data: Partial<Schema>, createdBy: string, session?: ClientSession): Promise<Schema> {
+        const created = await this.model.create(
+            [
+                {
+                    ...data,
+                    contributors: [createdBy],
+                    histories: { ...data, created_by: createdBy, contributors: [createdBy] },
+                    created_by: createdBy,
+                },
+            ],
+            { session }
+        );
         return created[0];
     }
 
-    insertMany(data: Partial<Schema>[], session?: ClientSession) {
-        const withHistories = data.map((data) => ({ ...data, histories: data }));
+    insertMany(data: Partial<Schema>[], createdBy: string, session?: ClientSession) {
+        const withHistories = data.map((data) => ({
+            ...data,
+            histories: { ...data, contributors: [createdBy], created_by: createdBy },
+            contributors: [createdBy],
+            created_by: createdBy,
+        }));
         return this.model.create(withHistories, { session });
     }
 
@@ -40,7 +57,7 @@ export abstract class BaseRepository<Schema extends IBase,
         data: Partial<SchemaUpload>[],
         uploadedBy: string,
         insertedIds: Types.ObjectId[],
-        session?: ClientSession,
+        session?: ClientSession
     ) {
         return this.uploadModel!.create([{ data, uploaded_by: uploadedBy, inserted_ids: insertedIds }], { session });
     }
@@ -76,12 +93,22 @@ export abstract class BaseRepository<Schema extends IBase,
     findContributedPage(username: string, query?: _FilterQuery<Schema>, page = 1, limit = 20) {
         return this.model.paginate(
             { ...query, contributors: username, deleted: { $exists: false } },
-            { page, limit, lean: true },
+            { page, limit, lean: true }
         );
     }
 
-    updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, session?: ClientSession) {
-        return this.model.updateOne({ _id: id }, { $set: data, $push: { histories: data } }, { session }).exec();
+    updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, updatedBy: string, session?: ClientSession) {
+        return this.model
+            .updateOne(
+                { _id: id },
+                {
+                    $set: { ...data, updated_by: updatedBy },
+                    $push: { histories: { ...data, updated_by: updatedBy } },
+                    $addToSet: { contributors: updatedBy },
+                },
+                { session }
+            )
+            .exec();
     }
 
     addContributor(ids: (IBase["_id"] | string)[], contributor: string) {
@@ -89,6 +116,11 @@ export abstract class BaseRepository<Schema extends IBase,
     }
 
     deleteById(id: IBase["_id"] | string, deletedBy: string, session?: ClientSession) {
-        return this.updateById(id, { deleted: true, deleted_at: new Date(), deleted_by: deletedBy }, session);
+        return this.updateById(
+            id,
+            { deleted: true, deleted_at: new Date(), deleted_by: deletedBy },
+            deletedBy,
+            session
+        );
     }
 }

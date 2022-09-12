@@ -20,12 +20,12 @@ r.GET("/configs", allow(["D"]), async () => {
     return data(dtoList);
 });
 
-r.POST("/config/:key", allow(["D"]), async ({ params, body }) => {
+r.POST("/config/:key", allow(["D"]), async ({ params, body, currentUser }) => {
     const { key, value } = validateZod(SetConfigDTOValidation, {
         key: params.key,
         value: body.value,
     });
-    await configService.set(key, value);
+    await configService.set(key, value, currentUser!.username);
     return success();
 });
 

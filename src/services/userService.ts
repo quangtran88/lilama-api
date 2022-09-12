@@ -19,12 +19,14 @@ class UserService extends BaseService<IUser> {
         }
 
         const hashedPassword = await hashPassword(dto.password);
-        return userRepository.insert({
-            ...dto,
-            password: hashedPassword,
-            active: true,
-            created_by: createdBy,
-        });
+        return userRepository.insert(
+            {
+                ...dto,
+                password: hashedPassword,
+                active: true,
+            },
+            createdBy
+        );
     }
 
     async getAll(): Promise<IUser[]> {
@@ -37,12 +39,12 @@ class UserService extends BaseService<IUser> {
         if (dto.password) {
             data.password = await hashPassword(dto.password);
         }
-        return userRepository.updateById(user.id, { ...data, updated_by: updatedBy });
+        return userRepository.updateById(user.id, data, updatedBy);
     }
 
     async block({ id }: IdDTO, updatedBy: string) {
         const user = await this.assertExisted(id);
-        return userRepository.updateById(user.id, { active: false, updated_by: updatedBy });
+        return userRepository.updateById(user.id, { active: false }, updatedBy);
     }
 
     async getDetails({ id }: IdDTO): Promise<IUser> {

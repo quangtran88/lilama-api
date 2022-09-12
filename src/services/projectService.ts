@@ -19,30 +19,12 @@ class ProjectService extends BaseService<IProject> {
         if (existed) {
             throw new HTTPError(ProjectError.CODE_EXISTED);
         }
-
-        return projectRepository.insert(
-            {
-                ...dto,
-                created_by: createdBy,
-                contributors: [createdBy],
-                need_review: true,
-            },
-            session
-        );
+        return projectRepository.insert({ ...dto, need_review: true }, createdBy, session);
     }
 
     async update(dto: UpdateProjectDTO, updatedBy: string) {
-        const project = await this.assertExisted(dto.id);
-
-        const contributors = new Set(project.contributors);
-        contributors.add(updatedBy);
-
-        return projectRepository.updateById(dto.id, {
-            ...dto,
-            updated_by: updatedBy,
-            contributors: Array.from(contributors),
-            need_review: false,
-        });
+        await this.assertExisted(dto.id);
+        return projectRepository.updateById(dto.id, { ...dto, need_review: false }, updatedBy);
     }
 
     async getAll(currentUser: IUser) {
@@ -88,13 +70,9 @@ class ProjectService extends BaseService<IProject> {
         const session = await mongoose.startSession();
         await session.withTransaction(async (s) => {
             const created = await projectRepository.insertMany(
-                data.map((d) => ({
-                    ...d,
-                    created_by: uploadedBy,
-                    contributors: [uploadedBy],
-                    need_review: true,
-                })),
-                s,
+                data.map((d) => ({ ...d, need_review: true })),
+                uploadedBy,
+                s
             );
             const createdIds = created.map((c) => c._id);
             await projectRepository.insertUpload(data, uploadedBy, createdIds, s);
@@ -105,7 +83,7 @@ class ProjectService extends BaseService<IProject> {
 
     async disable({ id }: IdDTO, updatedBy: string) {
         await this.assertExisted(id);
-        return projectRepository.updateById(id, { need_review: true, updated_by: updatedBy });
+        return projectRepository.updateById(id, { need_review: true }, updatedBy);
     }
 }
 

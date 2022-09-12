@@ -11,23 +11,15 @@ export interface IBindingPackage extends IBase<IBindingPackage> {
         need_review?: boolean;
     };
 }
-
-export interface IBindingPackageDocument extends IBindingPackage {
-}
-
-export interface IBindingPackageModel extends Model<IBindingPackage>, PaginateModel<IBindingPackage> {
-}
+export interface IBindingPackageDocument extends IBindingPackage {}
+export interface IBindingPackageModel extends Model<IBindingPackage>, PaginateModel<IBindingPackage> {}
 
 export interface IBindingPackageUpload extends IBase {
     project_code: string;
     code: string;
     description: string;
 }
-
-export interface IBindingPackageUploadDocument extends IUpload<IBindingPackageUpload> {
-}
-
+export interface IBindingPackageUploadDocument extends IUpload<IBindingPackageUpload> {}
 export interface IBindingPackageUploadModel
     extends Model<IProjectUploadDocument>,
-        PaginateModel<IProjectUploadDocument> {
-}
+        PaginateModel<IProjectUploadDocument> {}

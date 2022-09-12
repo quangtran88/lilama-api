@@ -15,12 +15,12 @@ class ConfigService {
         return configRepository.find();
     }
 
-    async set(key: string, value: string) {
+    async set(key: string, value: string, updatedBy: string) {
         const existed = await configRepository.findByKey(key);
         if (!existed) {
-            return configRepository.insert({ key, value });
+            return configRepository.insert({ key, value }, updatedBy);
         }
-        return configRepository.updateById(existed._id, { value });
+        return configRepository.updateById(existed._id, { value }, updatedBy);
     }
 }
 
