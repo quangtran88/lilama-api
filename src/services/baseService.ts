@@ -7,7 +7,7 @@ type ServiceError = {
     NOT_FOUND: HTTPErrorTuple;
 };
 
-export abstract class BaseService<Schema extends IBase & IReviewable> {
+export abstract class BaseService<Schema extends IBase & IReviewable, UploadDTO extends Partial<any> = any> {
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
 

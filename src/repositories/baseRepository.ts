@@ -9,6 +9,7 @@ import {
     RootQuerySelector,
     Types,
 } from "mongoose";
+import { ILogUpload } from "../types/interfaces/service";
 
 type _FilterQuery<T> = {
     [P in keyof T]?: ApplyBasicQueryCasting<T> | QuerySelector<ApplyBasicQueryCasting<T[P]>>;
@@ -19,7 +20,8 @@ export abstract class BaseRepository<
     SchemaModel extends Model<Schema> & PaginateModel<Schema>,
     SchemaUpload extends IBase = any,
     SchemaUploadModel extends Model<IUpload<any>> = any
-> {
+> implements ILogUpload
+{
     private model: SchemaModel;
     private uploadModel?: SchemaUploadModel;
 

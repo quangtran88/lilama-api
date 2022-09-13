@@ -5,7 +5,7 @@ import { ProjectError } from "../errors/projectErrors";
 import { BaseService } from "./baseService";
 import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions, UserPermission } from "../types/models/IUser";
-import mongoose, { ClientSession, PaginateResult } from "mongoose";
+import { ClientSession, PaginateResult } from "mongoose";
 import { ProjectResultDTO } from "../dtos/project";
 import {
     IDisableService,
@@ -14,6 +14,7 @@ import {
     IUpdateService,
     IUploadService,
 } from "../types/interfaces/service";
+import { commitUpload, verifyUpload } from "../utils/upload";
 
 class ProjectService
     extends BaseService<IProject>
@@ -69,30 +70,17 @@ class ProjectService
     }
 
     async verifyUpload(data: UploadProjectDTO[]) {
-        const uploadData: UploadProjectDTO[] = [];
-        for (const project of data) {
-            const existed = await projectRepository.findByCode(project.code);
-            if (existed) continue;
-            uploadData.push(project);
-        }
-        return uploadData;
+        return verifyUpload(data, async (dto) => {
+            const existed = await projectRepository.findByCode(dto.code);
+            return !existed;
+        });
     }
 
     async commitUpload(dtoList: UploadProjectDTO[], uploadedBy: string) {
         const data = await this.verifyUpload(dtoList);
-        let result: IProject[] = [];
-        const session = await mongoose.startSession();
-        await session.withTransaction(async (s) => {
-            const created = await projectRepository.insertMany(
-                data.map((d) => ({ ...d, need_review: true })),
-                uploadedBy,
-                s
-            );
-            const createdIds = created.map((c) => c._id);
-            await projectRepository.insertUpload(data, uploadedBy, createdIds, s);
-            result = created;
+        return commitUpload(data, projectRepository, uploadedBy, async (dto, s) => {
+            return this.create(dto, uploadedBy, s);
         });
-        return result;
     }
 }
 

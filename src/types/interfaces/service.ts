@@ -1,10 +1,19 @@
 import { IUser } from "../models/IUser";
-import { PaginateResult, UpdateWriteOpResult } from "mongoose";
+import { ClientSession, PaginateResult, Types, UpdateWriteOpResult } from "mongoose";
 import { IdDTO } from "../../dtos/base";
 
 export interface IUploadService<UploadDTO = any, Schema = any> {
-    verifyUpload(dto: UploadDTO[]): Promise<UploadDTO[]>;
-    commitUpload(dto: UploadDTO[], uploadedBy: string): Promise<Schema[]>;
+    verifyUpload(dtoList: UploadDTO[]): Promise<UploadDTO[]>;
+    commitUpload(dtoList: UploadDTO[], uploadedBy: string): Promise<Schema[]>;
+}
+
+export interface ILogUpload<SchemaUpload = any> {
+    insertUpload(
+        data: Partial<SchemaUpload>[],
+        uploadedBy: string,
+        insertedIds: Types.ObjectId[],
+        session?: ClientSession
+    ): Promise<SchemaUpload[]>;
 }
 
 export interface IPaginateService<Schema = any, SearchDTO = any> {
