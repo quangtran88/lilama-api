@@ -6,6 +6,7 @@ import { UserError } from "../errors/userErrors";
 import { IdDTO } from "../dtos/base";
 import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
 import { BaseService } from "./baseService";
+import { _FilterQuery } from "../repositories/baseRepository";
 
 class UserService extends BaseService<IUser> {
     constructor() {
@@ -47,8 +48,8 @@ class UserService extends BaseService<IUser> {
         return userRepository.updateById(user.id, { active: false }, updatedBy);
     }
 
-    async getDetails({ id }: IdDTO): Promise<IUser> {
-        return this.assertExisted(id);
+    mapSearchToQuery(search: any): _FilterQuery<IUser> {
+        return {};
     }
 }
 

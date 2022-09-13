@@ -21,10 +21,10 @@ router.GET("/users", allow(["D"]), async () => {
     return data(userDTOs);
 });
 
-router.GET("/user/:id", allow(["D"]), async (req) => {
-    const dto = validateZod(IdDTOValidation, { id: req.params.id });
-    const userDetails = await userService.getDetails(dto);
-    return data(new UserResultDTO(userDetails));
+router.GET("/user/:id", allow(["D"]), async ({ params, currentUser }) => {
+    const dto = validateZod(IdDTOValidation, { id: params.id });
+    const userDetails = await userService.getDetails(dto.id, currentUser!);
+    return userDetails && data(new UserResultDTO(userDetails));
 });
 
 router.PATCH("/user/:id", allow(["D"]), async (req) => {

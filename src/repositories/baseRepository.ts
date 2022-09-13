@@ -11,7 +11,7 @@ import {
 } from "mongoose";
 import { ILogUpload } from "../types/interfaces/service";
 
-type _FilterQuery<T> = {
+export type _FilterQuery<T> = {
     [P in keyof T]?: ApplyBasicQueryCasting<T> | QuerySelector<ApplyBasicQueryCasting<T[P]>>;
 } & RootQuerySelector<T>;
 

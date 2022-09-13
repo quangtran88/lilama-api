@@ -25,7 +25,7 @@ const router = new CustomRouter();
 
 createPaginateRoute(router, PATHS, projectService, ProjectResultDTO);
 
-createGetDetailsRoute(router, PATH, projectService);
+createGetDetailsRoute(router, PATH, projectService, ProjectResultDTO);
 
 router.POST("/project", allow(["D", "C"]), async (req) => {
     const dto = validateZod(CreateProjectDTOValidation, req.body);

@@ -84,12 +84,13 @@ export function createGetDetailsRoute(
     router: CustomRouter,
     prefixPath: string,
     getDetailsService: IGetDetailsService,
+    ResultDTO: { new (schema: any): BaseResultDTO },
     permissions: (keyof typeof UserPermission)[] = ["D", "C", "B"]
 ) {
     router.GET(`${prefixPath}/:id`, allow(permissions), async ({ currentUser, params }) => {
         const dto = validateZod(IdDTOValidation, { id: params.id });
         const details = await getDetailsService.getDetails(dto.id, currentUser!);
-        return data(details);
+        return details && data(new ResultDTO(details));
     });
 }
 

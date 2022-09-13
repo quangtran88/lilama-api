@@ -7,6 +7,7 @@ import projectRepository from "../repositories/projectRepository";
 import mongoose from "mongoose";
 import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions } from "../types/models/IUser";
+import { _FilterQuery } from "../repositories/baseRepository";
 
 class BindingPackageService extends BaseService<IBindingPackage> {
     constructor() {
@@ -68,6 +69,10 @@ class BindingPackageService extends BaseService<IBindingPackage> {
             return bindingPackageRepository.findPage({}, page, limit);
         }
         return bindingPackageRepository.findContributedPage(currentUser.username, {}, page, limit);
+    }
+
+    mapSearchToQuery(search: any): _FilterQuery<IBindingPackage> {
+        return {};
     }
 }
 
