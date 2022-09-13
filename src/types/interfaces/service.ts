@@ -2,8 +2,8 @@ import { IUser } from "../models/IUser";
 import { ClientSession, PaginateResult, Types, UpdateWriteOpResult } from "mongoose";
 import { IdDTO } from "../../dtos/base";
 
-export interface IUploadService<UploadDTO = any, Schema = any> {
-    verifyUpload(dtoList: UploadDTO[]): Promise<UploadDTO[]>;
+export interface IUploadService<UploadDTO = any, Schema = any, UploadDTOResult = UploadDTO> {
+    verifyUpload(dtoList: UploadDTO[]): Promise<UploadDTOResult[]>;
     commitUpload(dtoList: UploadDTO[], uploadedBy: string): Promise<Schema[]>;
 }
 

@@ -1,9 +1,9 @@
 import { UploadBindingPackageDTOValidation } from "../../validations/bindingPackage";
 import { z } from "zod";
-import { IProject } from "../models/IProject";
+import { ProjectResultDTO } from "../../dtos/project";
 
 export type UploadBindingPackageDTO = z.infer<typeof UploadBindingPackageDTOValidation>;
 
 export type UploadBindingPackageResultDTO = UploadBindingPackageDTO & {
-    project: IProject | null;
+    project?: ProjectResultDTO | null;
 };

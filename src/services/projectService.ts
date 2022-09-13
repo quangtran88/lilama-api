@@ -22,7 +22,7 @@ class ProjectService
         if (existed) {
             throw new HTTPError(ProjectError.CODE_EXISTED);
         }
-        return projectRepository.insert({ ...dto, need_review: true }, createdBy, session);
+        return projectRepository.insert(dto, createdBy, session);
     }
 
     async update(dto: UpdateProjectDTO, updatedBy: string) {
@@ -33,7 +33,8 @@ class ProjectService
     async verifyUpload(data: UploadProjectDTO[]) {
         return verifyUpload(data, async (dto) => {
             const existed = await projectRepository.findByCode(dto.code);
-            return !existed;
+            if (existed) return;
+            return dto;
         });
     }
 

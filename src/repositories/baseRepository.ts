@@ -113,8 +113,10 @@ export abstract class BaseRepository<
             .exec();
     }
 
-    addContributor(ids: (IBase["_id"] | string)[], contributor: string) {
-        return this.model.updateMany({ _id: { $in: ids } }, { $addToSet: { contributors: contributor } }).exec();
+    addContributor(ids: (IBase["_id"] | string)[], contributor: string, session?: ClientSession) {
+        return this.model
+            .updateMany({ _id: { $in: ids } }, { $addToSet: { contributors: contributor } }, { session })
+            .exec();
     }
 
     deleteById(id: IBase["_id"] | string, deletedBy: string, session?: ClientSession) {

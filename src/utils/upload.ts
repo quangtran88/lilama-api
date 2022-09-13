@@ -37,11 +37,15 @@ export function validateFile<T>(filePath: string, validation: ZodType<T>, import
     return dtoList;
 }
 
-export async function verifyUpload<DTO>(dtoList: DTO[], verify: (dto: DTO) => Promise<boolean>): Promise<DTO[]> {
-    const verified: DTO[] = [];
+export async function verifyUpload<DTO, ResultDTO = DTO>(
+    dtoList: DTO[],
+    verify: (dto: DTO) => Promise<ResultDTO | undefined>
+): Promise<ResultDTO[]> {
+    const verified: ResultDTO[] = [];
     for (const dto of dtoList) {
-        if (await verify(dto)) {
-            verified.push(dto);
+        const verifiedDto = await verify(dto);
+        if (verifiedDto) {
+            verified.push(verifiedDto);
         }
     }
     return verified;
