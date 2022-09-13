@@ -6,7 +6,6 @@ import {
     IBindingPackageUploadModel,
 } from "../types/models/IBindingPackage";
 import { BindingPackageModel, BindingPackageUploadModel } from "../models/bindingPackage";
-import { ClientSession } from "mongoose";
 
 class BindingPackageRepository extends BaseRepository<
     IBindingPackage,
@@ -20,10 +19,6 @@ class BindingPackageRepository extends BaseRepository<
 
     async findByCode(code: IBindingPackage["code"]) {
         return this.findFirst({ code });
-    }
-
-    async insert(data: Partial<IBindingPackage>, createdBy: string, session?: ClientSession): Promise<IBindingPackage> {
-        return super.insert({ ...data, need_review: true }, createdBy, session);
     }
 }
 

@@ -1,5 +1,5 @@
 import { IBase, IUpload } from "./IBase";
-import { Model, PaginateModel } from "mongoose";
+import { Model, PaginateModel, Types } from "mongoose";
 import { IProjectUploadDocument } from "./IProject";
 
 export interface IBindingPackage extends IBase<IBindingPackage> {
@@ -7,6 +7,7 @@ export interface IBindingPackage extends IBase<IBindingPackage> {
     description: string;
     need_review?: boolean;
     project: {
+        _id: Types.ObjectId;
         code: string;
         need_review?: boolean;
     };

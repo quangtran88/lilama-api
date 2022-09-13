@@ -39,14 +39,16 @@ export function validateFile<T>(filePath: string, validation: ZodType<T>, import
 
 export async function verifyUpload<DTO, ResultDTO = DTO>(
     dtoList: DTO[],
-    verify: (dto: DTO) => Promise<ResultDTO | undefined>
+    verify: (dto: DTO, line: number) => Promise<ResultDTO | undefined>
 ): Promise<ResultDTO[]> {
     const verified: ResultDTO[] = [];
+    let lineNumber = 1;
     for (const dto of dtoList) {
-        const verifiedDto = await verify(dto);
+        const verifiedDto = await verify(dto, lineNumber);
         if (verifiedDto) {
             verified.push(verifiedDto);
         }
+        lineNumber++;
     }
     return verified;
 }

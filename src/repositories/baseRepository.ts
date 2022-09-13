@@ -113,6 +113,20 @@ export abstract class BaseRepository<
             .exec();
     }
 
+    updateMany(query: _FilterQuery<Schema>, data: AnyKeys<Schema>, updatedBy: string, session?: ClientSession) {
+        return this.model
+            .updateMany(
+                query,
+                {
+                    $set: { ...data, updated_by: updatedBy },
+                    $push: { histories: { ...data, updated_by: updatedBy } },
+                    $addToSet: { contributors: updatedBy },
+                },
+                { session }
+            )
+            .exec();
+    }
+
     addContributor(ids: (IBase["_id"] | string)[], contributor: string, session?: ClientSession) {
         return this.model
             .updateMany({ _id: { $in: ids } }, { $addToSet: { contributors: contributor } }, { session })

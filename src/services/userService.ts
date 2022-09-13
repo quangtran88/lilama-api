@@ -7,49 +7,40 @@ import { IdDTO } from "../dtos/base";
 import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
 import { BaseService } from "./baseService";
 import { _FilterQuery } from "../repositories/baseRepository";
+import { AnyKeys } from "mongoose";
 
-class UserService extends BaseService<IUser> {
+class UserService extends BaseService<IUser, any, UpdateUserDTO, CreateUserDTO> {
     constructor() {
         super(userRepository, { NOT_FOUND: UserError.NOT_FOUND });
     }
 
-    async create(dto: CreateUserDTO, createdBy: string): Promise<IUser> {
+    _mapSearchToQuery(search: any): _FilterQuery<IUser> {
+        return {};
+    }
+
+    async _beforeCreate(dto: CreateUserDTO, createdBy: string): Promise<Partial<IUser>> {
         const existedUser = await userRepository.findByUsername(dto.username);
         if (existedUser) {
             throw new HTTPError(UserError.USERNAME_EXISTED);
         }
-
         const hashedPassword = await hashPassword(dto.password);
-        return userRepository.insert(
-            {
-                ...dto,
-                password: hashedPassword,
-                active: true,
-            },
-            createdBy
-        );
+        return { ...dto, password: hashedPassword, active: true };
+    }
+
+    async _beforeUpdate(dto: UpdateUserDTO): Promise<AnyKeys<IUser>> {
+        if (dto.password) {
+            dto.password = await hashPassword(dto.password);
+        }
+        return dto;
     }
 
     async getAll(): Promise<IUser[]> {
         return userRepository.find();
     }
 
-    async update(dto: UpdateUserDTO, updatedBy: string) {
-        const { id, ...data } = dto;
-        const user = await this.assertExisted(id);
-        if (dto.password) {
-            data.password = await hashPassword(dto.password);
-        }
-        return userRepository.updateById(user.id, data, updatedBy);
-    }
-
     async block({ id }: IdDTO, updatedBy: string) {
         const user = await this.assertExisted(id);
         return userRepository.updateById(user.id, { active: false }, updatedBy);
-    }
-
-    mapSearchToQuery(search: any): _FilterQuery<IUser> {
-        return {};
     }
 }
 

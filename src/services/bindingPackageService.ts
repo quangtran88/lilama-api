@@ -2,54 +2,78 @@ import { BaseService } from "./baseService";
 import { IBindingPackage } from "../types/models/IBindingPackage";
 import bindingPackageRepository from "../repositories/bindingPackageRepository";
 import { BindingPackageError } from "../errors/bindingPackageErrors";
-import { UploadBindingPackageDTO, UploadBindingPackageResultDTO } from "../types/dtos/bindingPackage";
+import {
+    UpdateBindingPackageDTO,
+    UploadBindingPackageDTO,
+    UploadBindingPackageResultDTO,
+} from "../types/dtos/bindingPackage";
 import projectRepository from "../repositories/projectRepository";
 import { IProject } from "../types/models/IProject";
 import { _FilterQuery } from "../repositories/baseRepository";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { IUploadService } from "../types/interfaces/service";
-import projectService from "./projectService";
 import { ProjectResultDTO } from "../dtos/project";
 import { initCache } from "../utils/cache";
+import { UploadError } from "../errors/base";
+import { AnyKeys } from "mongoose";
+import { BPProjectInitializer } from "../utils/initializer/ProjectInitializer";
 
 class BindingPackageService
-    extends BaseService<IBindingPackage>
+    extends BaseService<IBindingPackage, any, UpdateBindingPackageDTO>
     implements IUploadService<UploadBindingPackageDTO, IBindingPackage, UploadBindingPackageResultDTO>
 {
     constructor() {
         super(bindingPackageRepository, { NOT_FOUND: BindingPackageError.NOT_FOUND });
     }
 
-    async verifyUpload(dtoList: UploadBindingPackageDTO[]): Promise<UploadBindingPackageResultDTO[]> {
-        const getProjectCache = initCache<IProject>((code) => projectRepository.findByCode(code));
-        return verifyUpload<UploadBindingPackageDTO, UploadBindingPackageResultDTO>(dtoList, async (dto) => {
-            const existed = await bindingPackageRepository.findByCode(dto.code);
-            if (existed) return;
-
-            let project = await getProjectCache(dto.project_code);
-            return { ...dto, project: project && new ProjectResultDTO(project) };
-        });
+    _mapSearchToQuery(search: any): _FilterQuery<IBindingPackage> {
+        return {};
     }
 
-    async commitUpload(dtoList: UploadBindingPackageDTO[], uploadedBy) {
-        const data = await this.verifyUpload(dtoList);
-        const getProjectCache = initCache<IProject>((id) => projectRepository.findById(id));
-        return commitUpload(data, bindingPackageRepository, uploadedBy, async (dto, s) => {
-            let project;
-            if (dto.project?.id) {
-                const projectId = dto.project.id;
-                project = await getProjectCache(projectId.toString());
-                await projectRepository.addContributor([projectId], uploadedBy, s);
-            } else {
-                await projectService.create({ code: dto.project_code }, uploadedBy, s);
+    async _beforeCreate(dto: any, createdBy: string): Promise<Partial<IBindingPackage>> {
+        return { ...dto, need_review: true };
+    }
+
+    async _beforeUpdate(dto: UpdateBindingPackageDTO): Promise<AnyKeys<IBindingPackage>> {
+        return { ...dto, need_review: false };
+    }
+
+    async verifyUpload(dtoList: UploadBindingPackageDTO[]): Promise<UploadBindingPackageResultDTO[]> {
+        const getProjectCache = initCache<IProject>((code) => projectRepository.findByCode(code));
+        const existedCode: Set<string> = new Set();
+        return verifyUpload<UploadBindingPackageDTO, UploadBindingPackageResultDTO>(
+            dtoList,
+            async (dto, lineNumber) => {
+                const existed = await bindingPackageRepository.findByCode(dto.code);
+                if (existed) return;
+
+                if (existedCode.has(dto.code)) {
+                    throw new UploadError("Duplicated code", lineNumber);
+                }
+                existedCode.add(dto.code);
+
+                let project = await getProjectCache(dto.project_code);
+                return { ...dto, project: project && new ProjectResultDTO(project) };
             }
+        );
+    }
+
+    async commitUpload(dtoList: UploadBindingPackageResultDTO[], uploadedBy) {
+        const data = await this.verifyUpload(dtoList);
+        const projectInitializer = new BPProjectInitializer();
+
+        return commitUpload(data, bindingPackageRepository, uploadedBy, async (dto, s) => {
+            let project = await projectInitializer.init(dto, uploadedBy, s);
+
             return bindingPackageRepository.insert(
                 {
                     ...dto,
                     project: {
+                        _id: project._id,
                         code: dto.project_code,
-                        need_review: !project || project.need_review,
+                        need_review: project.need_review,
                     },
+                    need_review: true,
                 },
                 uploadedBy,
                 s
@@ -57,8 +81,8 @@ class BindingPackageService
         });
     }
 
-    mapSearchToQuery(search: any): _FilterQuery<IBindingPackage> {
-        return {};
+    async updateProjectReview(projectCode: string, updatedBy: string) {
+        return bindingPackageRepository.updateMany({ "project.code": projectCode }, { need_review: false }, updatedBy);
     }
 }
 

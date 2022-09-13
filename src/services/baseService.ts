@@ -3,8 +3,8 @@ import { IBase, IReviewable } from "../types/models/IBase";
 import { HTTPError, HTTPErrorTuple } from "../errors/base";
 import { IdDTO } from "../dtos/base";
 import { IUser, ReadAllPermissions } from "../types/models/IUser";
-import { PaginateResult } from "mongoose";
-import { IDisableService, IGetDetailsService, IPaginateService } from "../types/interfaces/service";
+import { AnyKeys, ClientSession, PaginateResult } from "mongoose";
+import { IDisableService, IGetDetailsService, IPaginateService, IUpdateService } from "../types/interfaces/service";
 
 type ServiceError = {
     NOT_FOUND: HTTPErrorTuple;
@@ -12,9 +12,10 @@ type ServiceError = {
 
 export abstract class BaseService<
     Schema extends IBase & IReviewable,
-    UploadDTO extends Partial<any> = any,
-    SearchDTO extends object = any
-> implements IPaginateService<Schema>, IGetDetailsService<Schema>, IDisableService
+    SearchDTO extends object = any,
+    UpdateDTO extends IdDTO = any,
+    CreateDTO = any
+> implements IPaginateService<Schema>, IGetDetailsService<Schema>, IDisableService, IUpdateService<UpdateDTO>
 {
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
@@ -37,10 +38,10 @@ export abstract class BaseService<
         return this.repo.updateById(id, { need_review: true }, updatedBy);
     }
 
-    abstract mapSearchToQuery(search?: SearchDTO): _FilterQuery<Schema>;
+    abstract _mapSearchToQuery(search?: SearchDTO): _FilterQuery<Schema>;
 
     async getPage(currentUser: IUser, search?: SearchDTO, page = 1, limit = 20): Promise<PaginateResult<Schema>> {
-        const query = this.mapSearchToQuery(search);
+        const query = this._mapSearchToQuery(search);
         if (ReadAllPermissions.includes(currentUser.permission)) {
             return this.repo.findPage(query, page, limit);
         }
@@ -55,5 +56,20 @@ export abstract class BaseService<
             project = await this.repo.findByIdContributed(currentUser.username, id);
         }
         return project;
+    }
+
+    abstract _beforeCreate(dto: CreateDTO, createdBy: string): Promise<Partial<Schema>>;
+
+    async create(dto: CreateDTO, createdBy: string, session?: ClientSession) {
+        const createData = await this._beforeCreate(dto, createdBy);
+        return this.repo.insert(createData, createdBy, session);
+    }
+
+    abstract _beforeUpdate(dto: UpdateDTO, updatedBy: string, existed: Schema): Promise<AnyKeys<Schema>>;
+
+    async update(dto: UpdateDTO, updatedBy: string) {
+        const existed = await this.assertExisted(dto.id);
+        const updateData = await this._beforeUpdate(dto, updatedBy, existed);
+        return this.repo.updateById(dto.id, updateData, updatedBy);
     }
 }

@@ -1,5 +1,5 @@
 import { UploadProjectDTO } from "../types/dtos/project";
-import { UploadBindingPackageDTO } from "../types/dtos/bindingPackage";
+import { UploadBindingPackageResultDTO } from "../types/dtos/bindingPackage";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -10,7 +10,7 @@ export const IMPORT_PROJECT_KEY: ExcelMapping<UploadProjectDTO> = {
     description: "Thông tin dự án",
 };
 
-export const IMPORT_BINDING_PACKAGE_KEY: ExcelMapping<UploadBindingPackageDTO> = {
+export const IMPORT_BINDING_PACKAGE_KEY: ExcelMapping<UploadBindingPackageResultDTO> = {
     code: "Tên gói thầu",
     description: "Thông tin gói thầu",
     project_code: "Tên dự án",
