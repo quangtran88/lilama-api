@@ -1,5 +1,20 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { handleError } from "./response";
+import { data, handleError, paginate, success } from "./response";
+import { UserPermission } from "../types/models/IUser";
+import { z, ZodType } from "zod";
+import { ExcelMapping } from "../config/excelMaping";
+import { allow } from "./auth";
+import { validatePaginate, validateZod } from "./validation";
+import { file, validateFile } from "./upload";
+import {
+    IDisableService,
+    IGetDetailsService,
+    IPaginateService,
+    IUpdateService,
+    IUploadService,
+} from "../types/interfaces/service";
+import { BaseResultDTO } from "../dtos/base";
+import { IdDTOValidation } from "../validations/base";
 
 type RouterHandler = (req: Request, res: Response, next: NextFunction) => Promise<any> | any;
 
@@ -43,4 +58,78 @@ export class CustomRouter {
             });
         });
     }
+}
+
+export function createPaginateRoute(
+    router: CustomRouter,
+    path: string,
+    paginateService: IPaginateService,
+    ResultDTO: { new (schema: any): BaseResultDTO },
+    permissions: (keyof typeof UserPermission)[] = ["D", "C", "B"],
+    searchValidation?: ZodType
+) {
+    router.GET(path, allow(permissions), async ({ currentUser, query }) => {
+        const { page, limit } = validatePaginate(query);
+        let dto;
+        if (searchValidation) {
+            dto = validateZod(searchValidation, query);
+        }
+        const paginateData = await paginateService.getPage(currentUser!, dto, page, limit);
+        const data = paginateData.docs.map((p) => new ResultDTO(p));
+        return paginate(data, paginateData);
+    });
+}
+
+export function createGetDetailsRoute(
+    router: CustomRouter,
+    prefixPath: string,
+    getDetailsService: IGetDetailsService,
+    permissions: (keyof typeof UserPermission)[] = ["D", "C", "B"]
+) {
+    router.GET(`${prefixPath}/:id`, allow(permissions), async ({ currentUser, params }) => {
+        const dto = validateZod(IdDTOValidation, { id: params.id });
+        const details = await getDetailsService.getDetails(dto.id, currentUser!);
+        return data(details);
+    });
+}
+
+export function createUploadRoute(
+    router: CustomRouter,
+    prefixPath: string,
+    uploadValidation: ZodType,
+    importKeys: ExcelMapping,
+    uploadService: IUploadService,
+    permissions: (keyof typeof UserPermission)[] = ["D", "C"]
+) {
+    router.POST(`${prefixPath}/upload/verify`, allow(permissions), file(), async ({ file }) => {
+        const dtoList = validateFile(file!.path, uploadValidation, importKeys);
+        const result = await uploadService.verifyUpload(dtoList);
+        return success(result);
+    });
+    router.POST(`${prefixPath}/upload/commit`, allow(permissions), async ({ body, currentUser }) => {
+        const dto = validateZod(z.array(uploadValidation), body.data);
+        const created = await uploadService.commitUpload(dto, currentUser!.username);
+        return success({ createdIds: created.map((c) => c._id.toString()) });
+    });
+}
+
+export function createUpdateRoute(
+    router: CustomRouter,
+    prefixPath: string,
+    updateValidation: ZodType,
+    updateService: IUpdateService
+) {
+    router.PATCH(`${prefixPath}/:id`, allow(["D"]), async (req) => {
+        const dto = validateZod(updateValidation, { ...req.body, id: req.params.id });
+        await updateService.update(dto, req.currentUser!.username);
+        return success();
+    });
+}
+
+export function createDisableRoute(router: CustomRouter, prefixPath: string, disableService: IDisableService) {
+    router.POST(`${prefixPath}/:id/disable`, allow(["D"]), async ({ params, currentUser }) => {
+        const dto = validateZod(IdDTOValidation, { id: params.id });
+        await disableService.disable(dto, currentUser!.username);
+        return success();
+    });
 }

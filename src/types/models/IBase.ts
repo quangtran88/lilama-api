@@ -13,6 +13,10 @@ export interface IBase<S = any> extends Document {
     histories?: S[];
 }
 
+export interface IReviewable {
+    need_review?: boolean;
+}
+
 export interface IUpload<S> {
     data: S[];
     inserted_ids: IBase["_id"][];

@@ -1,12 +1,13 @@
 import { BaseRepository } from "../repositories/baseRepository";
-import { IBase } from "../types/models/IBase";
+import { IBase, IReviewable } from "../types/models/IBase";
 import { HTTPError, HTTPErrorTuple } from "../errors/base";
+import { IdDTO } from "../dtos/base";
 
 type ServiceError = {
     NOT_FOUND: HTTPErrorTuple;
 };
 
-export abstract class BaseService<Schema extends IBase> {
+export abstract class BaseService<Schema extends IBase & IReviewable> {
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
 
@@ -21,5 +22,10 @@ export abstract class BaseService<Schema extends IBase> {
             throw new HTTPError(this.error.NOT_FOUND);
         }
         return existed;
+    }
+
+    async disable({ id }: IdDTO, updatedBy: string) {
+        await this.assertExisted(id);
+        return this.repo.updateById(id, { need_review: true }, updatedBy);
     }
 }

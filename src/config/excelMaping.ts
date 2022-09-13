@@ -1,7 +1,7 @@
 import { UploadProjectDTO } from "../types/dtos/project";
 import { UploadBindingPackageDTO } from "../types/dtos/bindingPackage";
 
-export type ExcelMapping<Schema> = {
+export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
 };
 

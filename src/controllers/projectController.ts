@@ -1,33 +1,31 @@
-import { CustomRouter } from "../utils/router";
+import {
+    createDisableRoute,
+    createGetDetailsRoute,
+    createPaginateRoute,
+    createUpdateRoute,
+    createUploadRoute,
+    CustomRouter,
+} from "../utils/router";
 import { allow } from "../utils/auth";
-import { validatePaginate, validateZod } from "../utils/validation";
+import { validateZod } from "../utils/validation";
 import {
     CreateProjectDTOValidation,
     UpdateProjectDTOValidation,
     UploadProjectDTOValidation,
 } from "../validations/project";
 import projectService from "../services/projectService";
-import { data, paginate, success } from "../utils/response";
+import { success } from "../utils/response";
 import { ProjectResultDTO } from "../dtos/project";
-import { file, validateFile } from "../utils/upload";
 import { IMPORT_PROJECT_KEY } from "../config/excelMaping";
-import { z } from "zod";
-import { IdDTOValidation } from "../validations/base";
+
+const PATH = "/project";
+const PATHS = "/projects";
 
 const router = new CustomRouter();
 
-router.GET("/projects", allow(["D", "C", "B"]), async ({ currentUser, query }) => {
-    const { page, limit } = validatePaginate(query);
-    const paginateProjects = await projectService.getPage(currentUser!, page, limit);
-    const data = paginateProjects.docs.map((p) => new ProjectResultDTO(p));
-    return paginate(data, paginateProjects);
-});
+createPaginateRoute(router, PATHS, projectService, ProjectResultDTO);
 
-router.GET("/project/:id", allow(["D", "C", "B"]), async ({ currentUser, params }) => {
-    const dto = validateZod(IdDTOValidation, { id: params.id });
-    const project = await projectService.getDetails(dto.id, currentUser!);
-    return data(project);
-});
+createGetDetailsRoute(router, PATH, projectService);
 
 router.POST("/project", allow(["D", "C"]), async (req) => {
     const dto = validateZod(CreateProjectDTOValidation, req.body);
@@ -35,28 +33,10 @@ router.POST("/project", allow(["D", "C"]), async (req) => {
     return success({ createdId });
 });
 
-router.POST("/project/upload/verify", allow(["D", "C"]), file(), async ({ file }) => {
-    const dtoList = validateFile(file!.path, UploadProjectDTOValidation, IMPORT_PROJECT_KEY);
-    const result = await projectService.verifyUpload(dtoList);
-    return success(result);
-});
+createUploadRoute(router, PATH, UploadProjectDTOValidation, IMPORT_PROJECT_KEY, projectService);
 
-router.POST("/project/upload/commit", allow(["D", "C"]), async ({ body, currentUser }) => {
-    const dto = validateZod(z.array(UploadProjectDTOValidation), body.data);
-    const created = await projectService.commitUpload(dto, currentUser!.username);
-    return success({ createdIds: created.map((project) => project._id.toString()) });
-});
+createUpdateRoute(router, PATH, UpdateProjectDTOValidation, projectService);
 
-router.PATCH("/project/:id", allow(["D"]), async (req) => {
-    const dto = validateZod(UpdateProjectDTOValidation, { ...req.body, id: req.params.id });
-    await projectService.update(dto, req.currentUser!.username);
-    return success();
-});
-
-router.POST("/project/:id/disable", allow(["D"]), async ({ params, currentUser }) => {
-    const dto = validateZod(IdDTOValidation, { id: params.id });
-    await projectService.disable(dto, currentUser!.username);
-    return success();
-});
+createDisableRoute(router, PATH, projectService);
 
 export default router.getRouter();

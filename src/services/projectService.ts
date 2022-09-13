@@ -6,10 +6,24 @@ import { BaseService } from "./baseService";
 import { IProject } from "../types/models/IProject";
 import { IUser, ReadAllPermissions, UserPermission } from "../types/models/IUser";
 import mongoose, { ClientSession, PaginateResult } from "mongoose";
-import { IdDTO } from "../dtos/base";
 import { ProjectResultDTO } from "../dtos/project";
+import {
+    IDisableService,
+    IGetDetailsService,
+    IPaginateService,
+    IUpdateService,
+    IUploadService,
+} from "../types/interfaces/service";
 
-class ProjectService extends BaseService<IProject> {
+class ProjectService
+    extends BaseService<IProject>
+    implements
+        IUploadService<UploadProjectDTO, IProject>,
+        IPaginateService<IProject>,
+        IGetDetailsService<ProjectResultDTO>,
+        IUpdateService<UpdateProjectDTO>,
+        IDisableService
+{
     constructor() {
         super(projectRepository, { NOT_FOUND: ProjectError.NOT_FOUND });
     }
@@ -37,7 +51,7 @@ class ProjectService extends BaseService<IProject> {
         return [];
     }
 
-    async getPage(currentUser: IUser, page = 1, limit = 20): Promise<PaginateResult<IProject>> {
+    async getPage(currentUser: IUser, _?: any, page = 1, limit = 20): Promise<PaginateResult<IProject>> {
         if (ReadAllPermissions.includes(currentUser.permission)) {
             return projectRepository.findPage({}, page, limit);
         }
@@ -79,11 +93,6 @@ class ProjectService extends BaseService<IProject> {
             result = created;
         });
         return result;
-    }
-
-    async disable({ id }: IdDTO, updatedBy: string) {
-        await this.assertExisted(id);
-        return projectRepository.updateById(id, { need_review: true }, updatedBy);
     }
 }
 
