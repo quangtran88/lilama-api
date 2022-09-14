@@ -8,7 +8,7 @@ import {
 } from "../utils/router";
 
 import { CustomerResultDTO } from "../dtos/customer";
-import { UploadCustomerDTOValidation } from "../validations/customer";
+import { UpdateCustomerDTOValidation, UploadCustomerDTOValidation } from "../validations/customer";
 import customerService from "../services/customerService";
 import { IMPORT_CUSTOMER_KEY } from "../config/excelMaping";
 
@@ -23,7 +23,7 @@ createGetDetailsRoute(r, PATH, customerService, CustomerResultDTO);
 
 createDisableRoute(r, PATH, customerService);
 
-createUpdateRoute(r, PATH, UploadCustomerDTOValidation, customerService);
+createUpdateRoute(r, PATH, UpdateCustomerDTOValidation, customerService);
 
 createUploadRoute(r, PATH, UploadCustomerDTOValidation, IMPORT_CUSTOMER_KEY, customerService);
 

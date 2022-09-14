@@ -6,6 +6,7 @@ export class CustomerResultDTO extends BaseResultDTO {
     company?: string;
     address?: string;
     tax_code?: string;
+    need_review?: boolean;
 
     constructor(customer: ICustomer) {
         super(customer);
@@ -13,5 +14,6 @@ export class CustomerResultDTO extends BaseResultDTO {
         this.company = customer.company;
         this.address = customer.address;
         this.tax_code = customer.tax_code;
+        this.need_review = customer.need_review;
     }
 }
