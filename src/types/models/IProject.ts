@@ -11,4 +11,4 @@ export interface IProjectModel extends Model<IProject>, PaginateModel<IProject> 
 
 export interface IProjectUpload extends IProject {}
 export interface IProjectUploadDocument extends IUpload<IProjectUpload> {}
-export interface IProjectUploadModel extends Model<IUpload<IProject>>, PaginateModel<IUpload<IProject>> {}
+export interface IProjectUploadModel extends Model<IProjectUploadDocument>, PaginateModel<IProjectUploadDocument> {}

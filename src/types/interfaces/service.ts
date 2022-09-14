@@ -4,7 +4,7 @@ import { IdDTO } from "../../dtos/base";
 
 export interface IUploadService<UploadDTO = any, Schema = any, UploadDTOResult = UploadDTO> {
     verifyUpload(dtoList: UploadDTO[]): Promise<UploadDTOResult[]>;
-    commitUpload(dtoList: UploadDTO[], uploadedBy: string): Promise<Schema[]>;
+    commitUpload(dtoList: UploadDTOResult[], uploadedBy: string): Promise<Schema[]>;
 }
 
 export interface ILogUpload<SchemaUpload = any> {

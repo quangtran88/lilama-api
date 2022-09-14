@@ -1,6 +1,6 @@
 import { CreateProjectDTO, UpdateProjectDTO, UploadProjectDTO } from "../types/dtos/project";
 import projectRepository from "../repositories/projectRepository";
-import { HTTPError } from "../errors/base";
+import { HTTPError, UploadError } from "../errors/base";
 import { ProjectError } from "../errors/projectErrors";
 import { BaseService } from "./baseService";
 import { IProject } from "../types/models/IProject";
@@ -38,9 +38,15 @@ class ProjectService
     }
 
     async verifyUpload(data: UploadProjectDTO[]) {
-        return verifyUpload(data, async (dto) => {
+        const existedCode: Set<string> = new Set();
+        return verifyUpload(data, async (dto, line) => {
             const existed = await projectRepository.findByCode(dto.code);
             if (existed) return;
+
+            if (existedCode.has(dto.code)) {
+                throw new UploadError("Duplicated code", line);
+            }
+            existedCode.add(dto.code);
             return dto;
         });
     }
