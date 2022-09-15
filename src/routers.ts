@@ -7,6 +7,7 @@ import configController from "./controllers/configController";
 import bindingPackageController from "./controllers/bindingPackageController";
 import customerController from "./controllers/customerController";
 import mainContractController from "./controllers/mainContractController";
+import incomeController from "./controllers/incomeController";
 
 const router = Router();
 
@@ -19,7 +20,8 @@ router.use(
     configController,
     bindingPackageController,
     customerController,
-    mainContractController
+    mainContractController,
+    incomeController
 );
 
 export default router;

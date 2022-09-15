@@ -1,7 +1,8 @@
-import { ZodError, ZodType } from "zod";
+import { z, ZodError, ZodType } from "zod";
 import { ValidationError } from "../errors/base";
 import { Error, Types } from "mongoose";
 import { PaginateDTOValidation } from "../validations/base";
+import moment from "moment/moment";
 
 export function validateZod<T>(schema: ZodType<T>, input: unknown) {
     try {
@@ -24,4 +25,15 @@ export function validatePaginate(query: any): { page: number; limit: number } {
 
 export function isOID(s: any) {
     return Types.ObjectId.isValid(s);
+}
+
+export function zodDate() {
+    return z
+        .preprocess((date) => {
+            if (typeof date == "string") {
+                if (date.includes("/")) return moment(date, "DD/MM/YYYY").utcOffset(-7).toDate();
+                else return moment(date).toDate();
+            }
+        }, z.date())
+        .optional();
 }

@@ -25,12 +25,14 @@ import projectService from "./projectService";
 import bindingPackageService from "./bindingPackageService";
 import { BindingPackageError } from "../errors/bindingPackageErrors";
 import customerService from "./customerService";
+import IncomeRepository from "../repositories/incomeRepository";
 
 class MainContractService
     extends BaseService<IMainContract, any, UpdateMainContractDTO>
     implements IUploadService<UploadMainContractDTO, IMainContract, UploadMainContractResultDTO>
 {
     dependencyField = "main_contract";
+    dependencyRepo = [IncomeRepository];
 
     constructor() {
         super(mainContractRepository, { NOT_FOUND: MainContractError.NOT_FOUND });
@@ -77,7 +79,13 @@ class MainContractService
         dto: UpdateMainContractDTO,
         updatedBy: string
     ) {
-        return;
+        if (existed.need_review) {
+            await dependencyRepo.updateMany(
+                { "main_contract.code": existed.code },
+                { "main_contract.need_review": false },
+                updatedBy
+            );
+        }
     }
 
     verifyUpload(dtoList: UploadMainContractDTO[]): Promise<UploadMainContractResultDTO[]> {
@@ -122,16 +130,7 @@ class MainContractService
             dto.project = new ProjectResultDTO(project);
             const binding_package = await bindingPackageInitializer.init(dto, uploadedBy, s);
 
-            return this.create(
-                {
-                    ...dto,
-                    project: { ...project, _id: project.id },
-                    binding_package: { ...binding_package, _id: binding_package.id },
-                    customer: { ...customer, _id: customer.id },
-                },
-                uploadedBy,
-                s
-            );
+            return this.create({ ...dto, project, binding_package, customer }, uploadedBy, s);
         });
     }
 
