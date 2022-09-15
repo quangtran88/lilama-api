@@ -7,6 +7,7 @@ import {
     PaginateModel,
     QuerySelector,
     RootQuerySelector,
+    SortOrder,
     Types,
 } from "mongoose";
 import { ILogUpload } from "../types/interfaces/service";
@@ -64,6 +65,28 @@ export abstract class BaseRepository<
         return this.uploadModel!.create([{ data, uploaded_by: uploadedBy, inserted_ids: insertedIds }], { session });
     }
 
+    find(query?: _FilterQuery<Schema>, sort?: { [key in keyof Partial<Schema>]: SortOrder }) {
+        return this.model
+            .find({ ...query })
+            .sort(sort)
+            .exec();
+    }
+
+    findPage(query?: _FilterQuery<Schema>, page = 1, limit = 20, sort?: { [key in keyof Partial<Schema>]: SortOrder }) {
+        return this.model.paginate({ ...query }, { page, limit, lean: true, sort });
+    }
+
+    findFirst(
+        query?: _FilterQuery<Schema>,
+        sort?: { [key in keyof Partial<Schema>]: SortOrder },
+        session?: ClientSession
+    ) {
+        return this.model
+            .findOne({ ...query, deleted: { $exists: false } }, null, { session })
+            .sort(sort)
+            .exec();
+    }
+
     findById(id: IBase["_id"] | string) {
         return this.findFirst({ _id: id });
     }
@@ -72,31 +95,22 @@ export abstract class BaseRepository<
         return this.findFirstContributed(username, { _id: id });
     }
 
-    find(query?: _FilterQuery<Schema>) {
-        return this.model.find({ ...query, deleted: { $exists: false } }).exec();
-    }
-
-    findPage(query?: _FilterQuery<Schema>, page = 1, limit = 20) {
-        return this.model.paginate({ ...query, deleted: { $exists: false } }, { page, limit, lean: true });
-    }
-
-    findFirst(query?: _FilterQuery<Schema>) {
-        return this.model.findOne({ ...query, deleted: { $exists: false } }).exec();
-    }
-
     findFirstContributed(username: string, query?: _FilterQuery<Schema>) {
         return this.findFirst({ ...query, contributors: username });
     }
 
-    findContributed(username: string, query?: _FilterQuery<Schema>) {
-        return this.find({ ...query, contributors: username });
+    findContributed(username: string, query?: _FilterQuery<Schema>, sort?: { [key in keyof Schema]: SortOrder }) {
+        return this.find({ ...query, contributors: username }, sort);
     }
 
-    findContributedPage(username: string, query?: _FilterQuery<Schema>, page = 1, limit = 20) {
-        return this.model.paginate(
-            { ...query, contributors: username, deleted: { $exists: false } },
-            { page, limit, lean: true }
-        );
+    findContributedPage(
+        username: string,
+        query?: _FilterQuery<Schema>,
+        page = 1,
+        limit = 20,
+        sort?: { [key in keyof Schema]: SortOrder }
+    ) {
+        return this.findPage({ ...query, contributors: username }, page, limit, sort);
     }
 
     updateById(id: IBase["_id"] | string, data: AnyKeys<Schema>, updatedBy: string, session?: ClientSession) {

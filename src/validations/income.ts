@@ -41,7 +41,5 @@ export const UpdateIncomeDTOValidation = IdDTOValidation.extend({
     received_date: z.number().optional(),
     received_value: z.number().optional(),
     deduction_value: z.number().optional(),
-    remaining_advance_refund: z.number().optional(),
-    payment_request_debt: z.number().optional(),
     note: z.string().optional(),
 });

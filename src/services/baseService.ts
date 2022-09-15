@@ -5,6 +5,7 @@ import { IdDTO } from "../dtos/base";
 import { IUser, ReadAllPermissions } from "../types/models/IUser";
 import { AnyKeys, ClientSession, PaginateResult } from "mongoose";
 import { IDisableService, IGetDetailsService, IPaginateService, IUpdateService } from "../types/interfaces/service";
+import { SYSTEM } from "../config/common";
 
 type ServiceError = {
     NOT_FOUND: HTTPErrorTuple;
@@ -19,8 +20,11 @@ export abstract class BaseService<
 {
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
+
     protected dependencyRepo: BaseRepository<any, any>[] = [];
     protected dependencyField: string = "";
+    protected tempQuery: _FilterQuery<Schema> = {};
+    protected tempData: Partial<Schema> = {};
 
     protected constructor(repo: BaseRepository<Schema, any>, error: ServiceError) {
         this.repo = repo;
@@ -69,10 +73,10 @@ export abstract class BaseService<
         return project;
     }
 
-    abstract _beforeCreate(dto: CreateDTO, createdBy: string): Promise<Partial<Schema>>;
+    abstract _beforeCreate(dto: CreateDTO, createdBy: string, session?: ClientSession): Promise<Partial<Schema>>;
 
     async create(dto: CreateDTO, createdBy: string, session?: ClientSession) {
-        const createData = await this._beforeCreate(dto, createdBy);
+        const createData = await this._beforeCreate(dto, createdBy, session);
         return this.repo.insert(createData, createdBy, session);
     }
 
@@ -92,5 +96,13 @@ export abstract class BaseService<
             this.dependencyRepo.forEach((repo) => this._updateDependencyData(repo, existed, dto, updatedBy));
         }
         return this.repo.updateById(dto.id, updateData, updatedBy);
+    }
+
+    async getTemp(): Promise<Schema> {
+        const temp = await this.repo.findFirst(this.tempQuery);
+        if (!temp) {
+            return this.repo.insert(this.tempData, SYSTEM);
+        }
+        return temp;
     }
 }

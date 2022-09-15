@@ -18,6 +18,7 @@ import { UploadError } from "../errors/base";
 import { AnyKeys } from "mongoose";
 import { ProjectInitializer } from "../utils/initializer/ProjectInitializer";
 import mainContractRepository from "../repositories/mainContractRepository";
+import { TEMP_CODE } from "../config/common";
 
 class BindingPackageService
     extends BaseService<IBindingPackage, any, UpdateBindingPackageDTO>
@@ -25,6 +26,8 @@ class BindingPackageService
 {
     dependencyRepo = [mainContractRepository];
     dependencyField = "binding_package";
+    tempQuery = { code: TEMP_CODE };
+    tempData = { code: TEMP_CODE };
 
     constructor() {
         super(bindingPackageRepository, { NOT_FOUND: BindingPackageError.NOT_FOUND });

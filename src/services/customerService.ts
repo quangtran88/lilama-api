@@ -9,6 +9,7 @@ import { IUploadService } from "../types/interfaces/service";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { UploadError } from "../errors/base";
 import mainContractRepository from "../repositories/mainContractRepository";
+import { TEMP_CODE } from "../config/common";
 
 class CustomerService
     extends BaseService<ICustomer, any, UpdateCustomerDTO>
@@ -16,6 +17,8 @@ class CustomerService
 {
     dependencyRepo = [mainContractRepository];
     dependencyField = "customer";
+    tempQuery = { code: TEMP_CODE };
+    tempData = { code: TEMP_CODE };
 
     constructor() {
         super(customerRepository, {

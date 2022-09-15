@@ -54,6 +54,4 @@ export const IMPORT_INCOME_KEY: ExcelMapping<UploadIncomeDTO> = {
     received_value: "Số Tiền nhận",
     deduction_value: "GT Gán trừ",
     note: "Ghi chú",
-    remaining_advance_refund: "Tiền còn lại TƯ giảm dần",
-    payment_request_debt: "Số tiền còn nợ theo DNTT",
 };

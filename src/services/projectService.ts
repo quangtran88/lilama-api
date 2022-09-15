@@ -12,6 +12,7 @@ import bindingPackageService from "./bindingPackageService";
 import mainContractService from "./mainContractService";
 import bindingPackageRepository from "../repositories/bindingPackageRepository";
 import mainContractRepository from "../repositories/mainContractRepository";
+import { TEMP_CODE } from "../config/common";
 
 class ProjectService
     extends BaseService<IProject, any, UpdateProjectDTO, CreateProjectDTO>
@@ -19,6 +20,8 @@ class ProjectService
 {
     dependencyRepo = [bindingPackageRepository, mainContractRepository];
     dependencyField = "project";
+    tempQuery = { code: TEMP_CODE };
+    tempData = { code: TEMP_CODE };
 
     constructor() {
         super(projectRepository, { NOT_FOUND: ProjectError.NOT_FOUND });

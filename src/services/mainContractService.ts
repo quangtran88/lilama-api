@@ -26,6 +26,7 @@ import bindingPackageService from "./bindingPackageService";
 import { BindingPackageError } from "../errors/bindingPackageErrors";
 import customerService from "./customerService";
 import IncomeRepository from "../repositories/incomeRepository";
+import { TEMP_CODE } from "../config/common";
 
 class MainContractService
     extends BaseService<IMainContract, any, UpdateMainContractDTO>
@@ -33,6 +34,8 @@ class MainContractService
 {
     dependencyField = "main_contract";
     dependencyRepo = [IncomeRepository];
+    tempQuery = { code: TEMP_CODE };
+    tempData = { code: TEMP_CODE };
 
     constructor() {
         super(mainContractRepository, { NOT_FOUND: MainContractError.NOT_FOUND });

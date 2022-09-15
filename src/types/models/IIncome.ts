@@ -22,8 +22,8 @@ export interface IIncome extends IBase<IIncome> {
     received_date?: number;
     received_value?: number;
     deduction_value?: number;
-    note?: string;
     is_advance_payment: boolean;
+    note?: string;
     remaining_advance_refund?: number;
     payment_request_debt?: number;
 }
@@ -47,8 +47,6 @@ export interface IIncomeUpload extends IBase {
     received_date?: number;
     received_value?: number;
     deduction_value?: number;
-    remaining_advance_refund?: number;
-    payment_request_debt?: number;
     note?: string;
 }
 export interface IIncomeUploadDocument extends IUpload<IIncomeUpload> {}
