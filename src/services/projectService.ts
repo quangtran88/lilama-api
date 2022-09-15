@@ -18,6 +18,7 @@ class ProjectService
     implements IUploadService<UploadProjectDTO, IProject>
 {
     dependencyRepo = [bindingPackageRepository, mainContractRepository];
+    dependencyField = "project";
 
     constructor() {
         super(projectRepository, { NOT_FOUND: ProjectError.NOT_FOUND });

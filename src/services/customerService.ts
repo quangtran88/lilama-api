@@ -15,6 +15,7 @@ class CustomerService
     implements IUploadService<UploadCustomerDTO, ICustomer, UploadCustomerResultDTO>
 {
     dependencyRepo = [mainContractRepository];
+    dependencyField = "customer";
 
     constructor() {
         super(customerRepository, {

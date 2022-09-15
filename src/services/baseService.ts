@@ -20,6 +20,7 @@ export abstract class BaseService<
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
     protected dependencyRepo: BaseRepository<any, any>[] = [];
+    protected dependencyField: string = "";
 
     protected constructor(repo: BaseRepository<Schema, any>, error: ServiceError) {
         this.repo = repo;
@@ -36,6 +37,15 @@ export abstract class BaseService<
 
     async disable({ id }: IdDTO, updatedBy: string) {
         await this.assertExisted(id);
+        await Promise.all(
+            this.dependencyRepo.map((repo) =>
+                repo.updateMany(
+                    { [`${this.dependencyField}._id`]: id },
+                    { [`${this.dependencyField}.need_review`]: true },
+                    updatedBy
+                )
+            )
+        );
         return this.repo.updateById(id, { need_review: true }, updatedBy);
     }
 

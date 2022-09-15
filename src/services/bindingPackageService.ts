@@ -24,6 +24,7 @@ class BindingPackageService
     implements IUploadService<UploadBindingPackageDTO, IBindingPackage, UploadBindingPackageResultDTO>
 {
     dependencyRepo = [mainContractRepository];
+    dependencyField = "binding_package";
 
     constructor() {
         super(bindingPackageRepository, { NOT_FOUND: BindingPackageError.NOT_FOUND });

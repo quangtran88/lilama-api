@@ -30,6 +30,8 @@ class MainContractService
     extends BaseService<IMainContract, any, UpdateMainContractDTO>
     implements IUploadService<UploadMainContractDTO, IMainContract, UploadMainContractResultDTO>
 {
+    dependencyField = "main_contract";
+
     constructor() {
         super(mainContractRepository, { NOT_FOUND: MainContractError.NOT_FOUND });
     }
