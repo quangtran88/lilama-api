@@ -16,12 +16,6 @@ export async function initDB() {
 }
 
 export function generateSchema<ISchema>(schemaDefinition: SchemaDefinition<ISchema>, options?: SchemaOptions) {
-    const HistorySchema = new Schema<ISchema>(
-        {
-            ...schemaDefinition,
-        },
-        { timestamps: defaultTimestamp }
-    );
     return new Schema<ISchema>(
         {
             ...schemaDefinition,
@@ -31,7 +25,7 @@ export function generateSchema<ISchema>(schemaDefinition: SchemaDefinition<ISche
             deleted_by: String,
             created_by: String,
             updated_by: String,
-            histories: [HistorySchema],
+            histories: [schemaDefinition],
         },
         { timestamps: defaultTimestamp, ...options }
     );

@@ -11,13 +11,17 @@ import { model } from "mongoose";
 import paginate from "mongoose-paginate-v2";
 
 const CustomerSchema = generateSchema<ICustomer>({
-    code: { type: String, unique: true },
+    code: String,
     address: String,
     company: String,
     tax_code: String,
     need_review: Boolean,
 });
+
 CustomerSchema.plugin(paginate);
+
+CustomerSchema.index({ code: 1 }, { unique: true });
+
 export const CustomerModel = model<ICustomerDocument, ICustomerModel>("Customer", CustomerSchema);
 
 const CustomerUploadSchema = generateUploadSchema<ICustomerUpload>({

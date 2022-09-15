@@ -11,7 +11,7 @@ import paginate from "mongoose-paginate-v2";
 import { model, Types } from "mongoose";
 
 const MainContractSchema = generateSchema<IMainContract>({
-    code: { type: String, unique: true },
+    code: String,
     value: Number,
     description: String,
     signed_at: Date,
@@ -34,6 +34,11 @@ const MainContractSchema = generateSchema<IMainContract>({
 });
 
 MainContractSchema.plugin(paginate);
+
+MainContractSchema.index({ code: 1 }, { unique: true });
+MainContractSchema.index({ "project.code": 1 });
+MainContractSchema.index({ "customer.code": 1 });
+MainContractSchema.index({ "binding_package.code": 1 });
 
 export const MainContractModel = model<IMainContractDocument, IMainContractModel>(
     "MainContract",

@@ -19,7 +19,7 @@ const UserSchema = generateSchema<IUser>({
 
 UserSchema.plugin(paginate);
 
-UserSchema.index({ username: 1 });
+UserSchema.index({ username: 1, active: 1 });
 UserSchema.index({ active: 1 });
 
 export const UserModel = model<IUserDocument, IUserModel>("User", UserSchema);

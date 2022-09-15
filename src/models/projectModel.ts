@@ -11,19 +11,21 @@ import paginate from "mongoose-paginate-v2";
 import { generateSchema, generateUploadSchema } from "../utils/mongo";
 
 const ProjectSchema = generateSchema<IProject>({
-    code: { type: String, unique: true },
+    code: String,
     description: String,
     need_review: Boolean,
 });
+
+ProjectSchema.plugin(paginate);
+
+ProjectSchema.index({ code: 1 }, { unique: true });
+
+export const ProjectModel = model<IProjectDocument, IProjectModel>("Project", ProjectSchema);
 
 const ProjectUploadSchema = generateUploadSchema<IProjectUpload>({
     code: String,
     description: String,
 });
-
-ProjectSchema.plugin(paginate);
-
-export const ProjectModel = model<IProjectDocument, IProjectModel>("Project", ProjectSchema);
 
 export const ProjectUploadModel = model<IProjectUploadDocument, IProjectUploadModel>(
     "ProjectUpload",
