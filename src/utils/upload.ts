@@ -24,6 +24,7 @@ export function validateFile<T>(filePath: string, validation: ZodType<T>, import
         const line = json[i];
         try {
             const data = mapLine(line, importKeys);
+            console.log(data);
             const dto = validateZod(validation, data);
             dtoList.push(dto);
         } catch (error) {

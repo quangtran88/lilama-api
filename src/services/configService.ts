@@ -3,6 +3,7 @@ import configRepository from "../repositories/configRepository";
 export enum CONFIG_KEY {
     IMPORT_PROJECT_SAMPLE_FILE = "IMPORT_PROJECT_SAMPLE_FILE",
     IMPORT_BINDING_PACKAGE_SAMPLE_FILE = "IMPORT_BINDING_PACKAGE_SAMPLE_FILE",
+    IMPORT_CUSTOMER_SAMPLE_FILE = "IMPORT_CUSTOMER_SAMPLE_FILE",
 }
 
 class ConfigService {

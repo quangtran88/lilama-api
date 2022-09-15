@@ -10,7 +10,7 @@ import { commitUpload, verifyUpload } from "../utils/upload";
 import { UploadError } from "../errors/base";
 
 class CustomerService
-    extends BaseService<ICustomer, any, UpdateCustomerDTO, any>
+    extends BaseService<ICustomer, any, UpdateCustomerDTO>
     implements IUploadService<UploadCustomerDTO, ICustomer, UploadCustomerResultDTO>
 {
     constructor() {

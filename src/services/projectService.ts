@@ -9,6 +9,7 @@ import { IUploadService } from "../types/interfaces/service";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { _FilterQuery } from "../repositories/baseRepository";
 import bindingPackageService from "./bindingPackageService";
+import mainContractService from "./mainContractService";
 
 class ProjectService
     extends BaseService<IProject, any, UpdateProjectDTO, CreateProjectDTO>
@@ -25,6 +26,7 @@ class ProjectService
     async _beforeUpdate(dto: UpdateProjectDTO, updatedBy: string, existed: IProject): Promise<AnyKeys<IProject>> {
         if (existed.need_review) {
             await bindingPackageService.updateProjectReview(existed.code, updatedBy);
+            await mainContractService.updateProjectReview(existed.code, updatedBy);
         }
         return { ...dto, need_review: false };
     }

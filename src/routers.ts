@@ -6,6 +6,7 @@ import projectController from "./controllers/projectController";
 import configController from "./controllers/configController";
 import bindingPackageController from "./controllers/bindingPackageController";
 import customerController from "./controllers/customerController";
+import mainContractController from "./controllers/mainContractController";
 
 const router = Router();
 
@@ -17,7 +18,8 @@ router.use(
     projectController,
     configController,
     bindingPackageController,
-    customerController
+    customerController,
+    mainContractController
 );
 
 export default router;

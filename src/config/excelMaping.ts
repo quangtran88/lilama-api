@@ -1,6 +1,7 @@
 import { UploadProjectDTO } from "../types/dtos/project";
 import { UploadBindingPackageDTO } from "../types/dtos/bindingPackage";
 import { UploadCustomerDTO } from "../types/dtos/customer";
+import { UploadMainContractDTO } from "../types/dtos/mainContract";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -22,4 +23,14 @@ export const IMPORT_CUSTOMER_KEY: ExcelMapping<UploadCustomerDTO> = {
     address: "Địa chỉ",
     company: "Công ty",
     tax_code: "Mã thuế",
+};
+
+export const IMPORT_MAIN_CONTRACT_KEY: ExcelMapping<UploadMainContractDTO> = {
+    code: "Số HDC",
+    signed_at: "Ngày ký HDC",
+    customer_code: "Khách hàng",
+    binding_package_code: "Tên gói thầu",
+    project_code: "Công trình/dự án",
+    value: "Giá trị HDC",
+    description: "Hạng mục HDC",
 };

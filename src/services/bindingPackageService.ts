@@ -16,7 +16,7 @@ import { ProjectResultDTO } from "../dtos/project";
 import { initCache } from "../utils/cache";
 import { UploadError } from "../errors/base";
 import { AnyKeys } from "mongoose";
-import { BPProjectInitializer } from "../utils/initializer/ProjectInitializer";
+import { ProjectInitializer } from "../utils/initializer/ProjectInitializer";
 
 class BindingPackageService
     extends BaseService<IBindingPackage, any, UpdateBindingPackageDTO>
@@ -60,7 +60,7 @@ class BindingPackageService
 
     async commitUpload(dtoList: UploadBindingPackageResultDTO[], uploadedBy) {
         const data = await this.verifyUpload(dtoList);
-        const projectInitializer = new BPProjectInitializer();
+        const projectInitializer = new ProjectInitializer();
 
         return commitUpload(data, bindingPackageRepository, uploadedBy, async (dto, s) => {
             let project = await projectInitializer.init(dto, uploadedBy, s);

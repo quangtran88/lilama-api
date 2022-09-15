@@ -14,7 +14,7 @@ export abstract class BaseService<
     Schema extends IBase & IReviewable,
     SearchDTO extends object = any,
     UpdateDTO extends IdDTO = any,
-    CreateDTO = any
+    CreateDTO = Partial<Schema>
 > implements IPaginateService<Schema>, IGetDetailsService<Schema>, IDisableService, IUpdateService<UpdateDTO>
 {
     private repo: BaseRepository<Schema, any>;

@@ -25,6 +25,7 @@
     "express-session": "^1.17.3",
     "http-status-codes": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.4",
     "mongoose": "^6.5.4",
     "mongoose-paginate-v2": "^1.7.0",
     "morgan": "^1.10.0",
