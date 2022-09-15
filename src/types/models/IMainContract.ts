@@ -1,5 +1,5 @@
 import { IBase, IUpload } from "./IBase";
-import { Model, PaginateModel } from "mongoose";
+import { Model, PaginateModel, Types } from "mongoose";
 
 export interface IMainContract extends IBase<IMainContract> {
     code: string;
@@ -8,17 +8,17 @@ export interface IMainContract extends IBase<IMainContract> {
     signed_at?: Date;
     need_review?: boolean;
     binding_package: {
-        _id: string;
+        _id: Types.ObjectId;
         code: string;
         need_review?: boolean;
     };
     customer: {
-        _id: string;
+        _id: Types.ObjectId;
         code: string;
         need_review?: boolean;
     };
     project: {
-        _id: string;
+        _id: Types.ObjectId;
         code: string;
         need_review?: boolean;
     };

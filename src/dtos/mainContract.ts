@@ -1,5 +1,6 @@
 import { BaseResultDTO } from "./base";
 import { IMainContract } from "../types/models/IMainContract";
+import { mapId } from "../utils/dto";
 
 export class MainContractResultDTO extends BaseResultDTO {
     code: string;
@@ -8,17 +9,17 @@ export class MainContractResultDTO extends BaseResultDTO {
     signed_at?: Date;
     need_review?: boolean;
     binding_package: {
-        _id: string;
+        id: string;
         code: string;
         need_review?: boolean;
     };
     customer: {
-        _id: string;
+        id: string;
         code: string;
         need_review?: boolean;
     };
     project: {
-        _id: string;
+        id: string;
         code: string;
         need_review?: boolean;
     };
@@ -30,8 +31,8 @@ export class MainContractResultDTO extends BaseResultDTO {
         this.description = mc.description;
         this.signed_at = mc.signed_at;
         this.need_review = mc.need_review;
-        this.project = mc.project;
-        this.binding_package = mc.binding_package;
-        this.customer = mc.customer;
+        this.project = mapId(mc.project);
+        this.binding_package = mapId(mc.binding_package);
+        this.customer = mapId(mc.customer);
     }
 }

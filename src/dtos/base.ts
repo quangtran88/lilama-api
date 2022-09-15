@@ -4,10 +4,10 @@ import { IdDTOValidation } from "../validations/base";
 
 export abstract class BaseResultDTO {
     id: string;
-    created_at: Date;
-    created_by: string;
-    updated_at: Date;
-    updated_by: string;
+    created_at?: Date;
+    created_by?: string;
+    updated_at?: Date;
+    updated_by?: string;
 
     protected constructor(base: IBase) {
         this.created_at = base.created_at;

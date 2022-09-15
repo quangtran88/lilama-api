@@ -1,5 +1,6 @@
 import { BaseResultDTO } from "./base";
 import { IBindingPackage } from "../types/models/IBindingPackage";
+import { mapId } from "../utils/dto";
 
 export class BindingPackageResultDTO extends BaseResultDTO {
     code: string;
@@ -16,12 +17,6 @@ export class BindingPackageResultDTO extends BaseResultDTO {
         this.code = bindingPackage.code;
         this.description = bindingPackage.description;
         this.need_review = bindingPackage.need_review;
-
-        const project = bindingPackage.project;
-        this.project = {
-            id: project._id.toString(),
-            code: project.code,
-            need_review: project.need_review,
-        };
+        this.project = mapId(bindingPackage.project);
     }
 }

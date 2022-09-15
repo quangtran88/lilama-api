@@ -9,7 +9,7 @@ import {
 } from "../types/dtos/bindingPackage";
 import projectRepository from "../repositories/projectRepository";
 import { IProject } from "../types/models/IProject";
-import { _FilterQuery } from "../repositories/baseRepository";
+import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { IUploadService } from "../types/interfaces/service";
 import { ProjectResultDTO } from "../dtos/project";
@@ -17,11 +17,14 @@ import { initCache } from "../utils/cache";
 import { UploadError } from "../errors/base";
 import { AnyKeys } from "mongoose";
 import { ProjectInitializer } from "../utils/initializer/ProjectInitializer";
+import mainContractRepository from "../repositories/mainContractRepository";
 
 class BindingPackageService
     extends BaseService<IBindingPackage, any, UpdateBindingPackageDTO>
     implements IUploadService<UploadBindingPackageDTO, IBindingPackage, UploadBindingPackageResultDTO>
 {
+    dependencyRepo = [mainContractRepository];
+
     constructor() {
         super(bindingPackageRepository, { NOT_FOUND: BindingPackageError.NOT_FOUND });
     }
@@ -36,6 +39,21 @@ class BindingPackageService
 
     async _beforeUpdate(dto: UpdateBindingPackageDTO): Promise<AnyKeys<IBindingPackage>> {
         return { ...dto, need_review: false };
+    }
+
+    async _updateDependencyData(
+        dependencyRepo: BaseRepository<any, any>,
+        existed: IBindingPackage,
+        dto: UpdateBindingPackageDTO,
+        updatedBy: string
+    ) {
+        if (existed.need_review) {
+            await dependencyRepo.updateMany(
+                { "binding_package.code": existed.code },
+                { "binding_package.need_review": false },
+                updatedBy
+            );
+        }
     }
 
     async verifyUpload(dtoList: UploadBindingPackageDTO[]): Promise<UploadBindingPackageResultDTO[]> {

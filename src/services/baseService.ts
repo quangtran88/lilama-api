@@ -19,6 +19,7 @@ export abstract class BaseService<
 {
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
+    protected dependencyRepo: BaseRepository<any, any>[] = [];
 
     protected constructor(repo: BaseRepository<Schema, any>, error: ServiceError) {
         this.repo = repo;
@@ -67,9 +68,19 @@ export abstract class BaseService<
 
     abstract _beforeUpdate(dto: UpdateDTO, updatedBy: string, existed: Schema): Promise<AnyKeys<Schema>>;
 
+    abstract _updateDependencyData(
+        dependencyRepo: BaseRepository<any, any>,
+        existed: Schema,
+        dto: UpdateDTO,
+        updatedBy: string
+    ): Promise<void>;
+
     async update(dto: UpdateDTO, updatedBy: string) {
         const existed = await this.assertExisted(dto.id);
         const updateData = await this._beforeUpdate(dto, updatedBy, existed);
+        if (this.dependencyRepo.length) {
+            this.dependencyRepo.forEach((repo) => this._updateDependencyData(repo, existed, dto, updatedBy));
+        }
         return this.repo.updateById(dto.id, updateData, updatedBy);
     }
 }

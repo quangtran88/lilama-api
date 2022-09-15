@@ -3,7 +3,7 @@ import { IMainContract } from "../types/models/IMainContract";
 import { UpdateMainContractDTO, UploadMainContractDTO, UploadMainContractResultDTO } from "../types/dtos/mainContract";
 import { IUploadService } from "../types/interfaces/service";
 import { AnyKeys } from "mongoose";
-import { _FilterQuery } from "../repositories/baseRepository";
+import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { HTTPError, UploadError } from "../errors/base";
 import mainContractRepository from "../repositories/mainContractRepository";
@@ -67,6 +67,15 @@ class MainContractService
 
     _mapSearchToQuery(search: any): _FilterQuery<IMainContract> {
         return {};
+    }
+
+    async _updateDependencyData(
+        dependencyRepo: BaseRepository<any, any>,
+        existed: IMainContract,
+        dto: UpdateMainContractDTO,
+        updatedBy: string
+    ) {
+        return;
     }
 
     verifyUpload(dtoList: UploadMainContractDTO[]): Promise<UploadMainContractResultDTO[]> {

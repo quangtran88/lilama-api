@@ -7,14 +7,18 @@ import { IProject } from "../types/models/IProject";
 import { AnyKeys } from "mongoose";
 import { IUploadService } from "../types/interfaces/service";
 import { commitUpload, verifyUpload } from "../utils/upload";
-import { _FilterQuery } from "../repositories/baseRepository";
+import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import bindingPackageService from "./bindingPackageService";
 import mainContractService from "./mainContractService";
+import bindingPackageRepository from "../repositories/bindingPackageRepository";
+import mainContractRepository from "../repositories/mainContractRepository";
 
 class ProjectService
     extends BaseService<IProject, any, UpdateProjectDTO, CreateProjectDTO>
     implements IUploadService<UploadProjectDTO, IProject>
 {
+    dependencyRepo = [bindingPackageRepository, mainContractRepository];
+
     constructor() {
         super(projectRepository, { NOT_FOUND: ProjectError.NOT_FOUND });
     }
@@ -37,6 +41,21 @@ class ProjectService
             throw new HTTPError(ProjectError.CODE_EXISTED);
         }
         return { ...dto, need_review: true };
+    }
+
+    async _updateDependencyData(
+        dependencyRepo: BaseRepository<any, any>,
+        existed: IProject,
+        dto: UpdateProjectDTO,
+        updatedBy: string
+    ) {
+        if (existed.need_review) {
+            await dependencyRepo.updateMany(
+                { "project.code": existed.code },
+                { "project.need_review": false },
+                updatedBy
+            );
+        }
     }
 
     async verifyUpload(data: UploadProjectDTO[]) {

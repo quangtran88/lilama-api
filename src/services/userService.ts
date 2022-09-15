@@ -6,7 +6,7 @@ import { UserError } from "../errors/userErrors";
 import { IdDTO } from "../dtos/base";
 import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
 import { BaseService } from "./baseService";
-import { _FilterQuery } from "../repositories/baseRepository";
+import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import { AnyKeys } from "mongoose";
 
 class UserService extends BaseService<IUser, any, UpdateUserDTO, CreateUserDTO> {
@@ -32,6 +32,15 @@ class UserService extends BaseService<IUser, any, UpdateUserDTO, CreateUserDTO> 
             dto.password = await hashPassword(dto.password);
         }
         return dto;
+    }
+
+    async _updateDependencyData(
+        dependencyRepo: BaseRepository<any, any>,
+        existed: IUser,
+        dto: UpdateUserDTO,
+        updatedBy: string
+    ) {
+        return;
     }
 
     async getAll(): Promise<IUser[]> {

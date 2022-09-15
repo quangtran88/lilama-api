@@ -2,17 +2,20 @@ import { BaseService } from "./baseService";
 import { ICustomer } from "../types/models/ICustomer";
 import { UpdateCustomerDTO, UploadCustomerDTO, UploadCustomerResultDTO } from "../types/dtos/customer";
 import { AnyKeys } from "mongoose";
-import { _FilterQuery } from "../repositories/baseRepository";
+import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import customerRepository from "../repositories/customerRepository";
 import { CustomerError } from "../errors/customerErrors";
 import { IUploadService } from "../types/interfaces/service";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { UploadError } from "../errors/base";
+import mainContractRepository from "../repositories/mainContractRepository";
 
 class CustomerService
     extends BaseService<ICustomer, any, UpdateCustomerDTO>
     implements IUploadService<UploadCustomerDTO, ICustomer, UploadCustomerResultDTO>
 {
+    dependencyRepo = [mainContractRepository];
+
     constructor() {
         super(customerRepository, {
             NOT_FOUND: CustomerError.NOT_FOUND,
@@ -29,6 +32,21 @@ class CustomerService
 
     _mapSearchToQuery(search: any): _FilterQuery<ICustomer> {
         return {};
+    }
+
+    async _updateDependencyData(
+        dependencyRepo: BaseRepository<any, any>,
+        existed: ICustomer,
+        dto: UpdateCustomerDTO,
+        updatedBy: string
+    ) {
+        if (existed.need_review) {
+            await dependencyRepo.updateMany(
+                { "customer.code": existed.code },
+                { "customer.need_review": false },
+                updatedBy
+            );
+        }
     }
 
     async commitUpload(dtoList: UploadCustomerResultDTO[], uploadedBy: string): Promise<ICustomer[]> {
