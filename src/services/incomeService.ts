@@ -5,7 +5,7 @@ import { IUploadService } from "../types/interfaces/service";
 import IncomeRepository from "../repositories/incomeRepository";
 import incomeRepository from "../repositories/incomeRepository";
 import { IncomeError } from "../errors/incomeErrors";
-import { AnyKeys, ClientSession } from "mongoose";
+import mongoose, { AnyKeys, ClientSession } from "mongoose";
 import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import { commitUpload, verifyUpload } from "../utils/upload";
 import { initCache } from "../utils/cache";
@@ -15,6 +15,7 @@ import { MainContractResultDTO } from "../dtos/mainContract";
 import { MainContractInitializer } from "../utils/initializer/MainContractInitializer";
 import { safeNumber } from "../utils/number";
 import { SYSTEM } from "../config/common";
+import { HTTPError } from "../errors/base";
 
 const ADVANCE_PAYMENT_NOTE = "Tạm ứng";
 
@@ -31,14 +32,20 @@ class IncomeService
         const payment_request_debt = is_advance_payment
             ? 0
             : this.calculatePaymentRequestDebt(dto.payment_request_value, dto.received_value, dto.deduction_value);
-        const remainingAdvanceValue = await this.getRemainingAdvanceValue(dto.main_contract!.code, session);
-        const remaining_advance_refund = is_advance_payment
-            ? remainingAdvanceValue + safeNumber(dto.received_value)
-            : remainingAdvanceValue - safeNumber(dto.advance_refund_value);
+        const remainingAdvanceValue = await this.getContractRemainingAdvanceValue(dto.main_contract!.code, session);
+        const remaining_advance_refund = this.calculateRemainingAdvanceRefund(
+            is_advance_payment,
+            remainingAdvanceValue,
+            dto.received_value,
+            dto.advance_refund_value
+        );
         return { ...dto, is_advance_payment, payment_request_debt, remaining_advance_refund };
     }
 
     async _beforeUpdate(dto: UpdateIncomeDTO, updatedBy: string, existed: IIncome): Promise<AnyKeys<IIncome>> {
+        if (existed.note == ADVANCE_PAYMENT_NOTE && dto.note != ADVANCE_PAYMENT_NOTE) {
+            throw new HTTPError(IncomeError.EDIT_ADVANCE_PAYMENT_NOTE);
+        }
         const payment_request_debt = this.calculatePaymentRequestDebt(
             dto.payment_request_value || existed.payment_request_value,
             dto.received_value || existed.received_value,
@@ -49,7 +56,7 @@ class IncomeService
         const remaining_advance_refund = await this.recalculateRAR(dto, existed, is_advance_payment);
 
         if (remaining_advance_refund != existed.remaining_advance_refund) {
-            await this.recalculateRARSinceDate(
+            await this.recalculateAllRARSinceDate(
                 existed.main_contract.code,
                 existed.created_at,
                 remaining_advance_refund
@@ -96,7 +103,7 @@ class IncomeService
         return note == ADVANCE_PAYMENT_NOTE;
     }
 
-    async getRemainingAdvanceValue(mainContractCode: string, session?: ClientSession) {
+    async getContractRemainingAdvanceValue(mainContractCode: string, session?: ClientSession) {
         const lastIncome = await incomeRepository.findFirst(
             { "main_contract.code": mainContractCode },
             { created_at: -1 },
@@ -105,20 +112,39 @@ class IncomeService
         return safeNumber(lastIncome?.remaining_advance_refund);
     }
 
-    async recalculateRARSinceDate(mainContractCode: string, createdSince: Date, lastRemaining: number) {
+    async recalculateAllRARSinceDate(mainContractCode: string, createdSince: Date, lastRemaining: number) {
         const incomes = await incomeRepository.find(
             { "main_contract.code": mainContractCode, created_at: { $gt: createdSince } },
             { created_at: 1 }
         );
-        let remaining = lastRemaining;
-        for (const income of incomes) {
-            if (income.is_advance_payment) {
-                remaining += safeNumber(income.received_value);
-            } else {
-                remaining -= safeNumber(income.advance_refund_value);
+        const session = await mongoose.startSession();
+        await session.withTransaction(async (s) => {
+            const updateOps: Promise<any>[] = [];
+            let remaining = lastRemaining;
+
+            for (const income of incomes) {
+                remaining = this.calculateRemainingAdvanceRefund(
+                    income.is_advance_payment,
+                    remaining,
+                    income.received_value,
+                    income.advance_refund_value
+                );
+                updateOps.push(
+                    incomeRepository.updateById(income._id, { remaining_advance_refund: remaining }, SYSTEM, s)
+                );
             }
-            await incomeRepository.updateById(income._id, { remaining_advance_refund: remaining }, SYSTEM);
-        }
+            await Promise.all(updateOps);
+        });
+        await session.endSession();
+    }
+
+    calculateRemainingAdvanceRefund(
+        isAdvancePayment: boolean,
+        lastRemaining = 0,
+        receivedValue = 0,
+        advanceRefundValue = 0
+    ) {
+        return isAdvancePayment ? lastRemaining + receivedValue : lastRemaining - advanceRefundValue;
     }
 
     async recalculateRAR(dto: UpdateIncomeDTO, existed: IIncome, is_advance_payment: boolean) {

@@ -37,3 +37,16 @@ export function zodDate() {
         }, z.date())
         .optional();
 }
+
+export function zodYear() {
+    return z
+        .preprocess((year) => {
+            if (typeof year == "string") {
+                return Number(year);
+            }
+            if (typeof year == "number") {
+                return year;
+            }
+        }, z.number())
+        .optional();
+}

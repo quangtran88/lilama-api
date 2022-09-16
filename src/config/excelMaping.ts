@@ -3,6 +3,7 @@ import { UploadBindingPackageDTO } from "../types/dtos/bindingPackage";
 import { UploadCustomerDTO } from "../types/dtos/customer";
 import { UploadMainContractDTO } from "../types/dtos/mainContract";
 import { UploadIncomeDTO } from "../types/dtos/income";
+import { UploadFinanceDTO } from "../types/dtos/finance";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -54,4 +55,17 @@ export const IMPORT_INCOME_KEY: ExcelMapping<UploadIncomeDTO> = {
     received_value: "Số Tiền nhận",
     deduction_value: "GT Gán trừ",
     note: "Ghi chú",
+};
+
+export const IMPORT_FINANCE_KEY: ExcelMapping<Required<UploadFinanceDTO>> = {
+    main_contract_code: "Số HDC",
+    mc_value: "Giá trị HDC",
+    contract_distributed_value: "Giá trị phân bổ HDC tương ứng khi GK",
+    contract_execution_value: "Chi phí thi công TT khi GK",
+    contract_year: "Năm thực hiện",
+    contract_rate: "Tỷ lệ GK (%)",
+    settlement_distributed_value: "Giá trị phân bổ HDC tương ứng khi QT",
+    settlement_execution_value: "Chi phí thi công TT khi QT",
+    settlement_year: "Năm QT",
+    settlement_rate: "Tỷ lệ QT (%)",
 };

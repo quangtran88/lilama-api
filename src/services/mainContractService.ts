@@ -27,13 +27,14 @@ import { BindingPackageError } from "../errors/bindingPackageErrors";
 import customerService from "./customerService";
 import IncomeRepository from "../repositories/incomeRepository";
 import { TEMP_CODE } from "../config/common";
+import FinanceRepository from "../repositories/financeRepository";
 
 class MainContractService
     extends BaseService<IMainContract, any, UpdateMainContractDTO>
     implements IUploadService<UploadMainContractDTO, IMainContract, UploadMainContractResultDTO>
 {
     dependencyField = "main_contract";
-    dependencyRepo = [IncomeRepository];
+    dependencyRepo = [IncomeRepository, FinanceRepository];
     tempQuery = { code: TEMP_CODE };
     tempData = { code: TEMP_CODE };
 
