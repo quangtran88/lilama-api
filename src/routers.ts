@@ -9,6 +9,7 @@ import customerController from "./controllers/customerController";
 import mainContractController from "./controllers/mainContractController";
 import incomeController from "./controllers/incomeController";
 import financeController from "./controllers/financeController";
+import executorController from "./controllers/executorController";
 
 const router = Router();
 
@@ -23,7 +24,8 @@ router.use(
     customerController,
     mainContractController,
     incomeController,
-    financeController
+    financeController,
+    executorController
 );
 
 export default router;

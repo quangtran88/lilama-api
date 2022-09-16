@@ -7,6 +7,7 @@ import { allow } from "./auth";
 import { validatePaginate, validateZod } from "./validation";
 import { file, validateFile } from "./upload";
 import {
+    ICreateService,
     IDisableService,
     IGetDetailsService,
     IPaginateService,
@@ -132,5 +133,19 @@ export function createDisableRoute(router: CustomRouter, prefixPath: string, dis
         const dto = validateZod(IdDTOValidation, { id: params.id });
         await disableService.disable(dto, currentUser!.username);
         return success();
+    });
+}
+
+export function createInsertRoute(
+    router: CustomRouter,
+    path: string,
+    createService: ICreateService,
+    createValidation: ZodType,
+    permissions: (keyof typeof UserPermission)[] = ["D", "C"]
+) {
+    router.POST(path, allow(permissions), async (req) => {
+        const dto = validateZod(createValidation, req.body);
+        const { _id: createdId } = await createService.create(dto, req.currentUser!.username);
+        return success({ createdId });
     });
 }

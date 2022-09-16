@@ -31,3 +31,7 @@ export interface IUpdateService<UpdateDTO = any> {
 export interface IDisableService {
     disable({ id }: IdDTO, updatedBy: string): Promise<UpdateWriteOpResult>;
 }
+
+export interface ICreateService<Schema = any, CreateDTO = any> {
+    create(dto: CreateDTO, createdBy: string, session?: ClientSession): Promise<Schema>;
+}

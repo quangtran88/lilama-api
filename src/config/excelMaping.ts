@@ -4,6 +4,7 @@ import { UploadCustomerDTO } from "../types/dtos/customer";
 import { UploadMainContractDTO } from "../types/dtos/mainContract";
 import { UploadIncomeDTO } from "../types/dtos/income";
 import { UploadFinanceDTO } from "../types/dtos/finance";
+import { UploadExecutorDTO } from "../types/dtos/executor";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -68,4 +69,9 @@ export const IMPORT_FINANCE_KEY: ExcelMapping<Required<UploadFinanceDTO>> = {
     settlement_execution_value: "Chi phí thi công TT khi QT",
     settlement_year: "Năm QT",
     settlement_rate: "Tỷ lệ QT (%)",
+};
+
+export const IMPORT_EXECUTOR_KEY: ExcelMapping<Required<UploadExecutorDTO>> = {
+    code: "DVTT",
+    info: "Thông tin DVTT",
 };

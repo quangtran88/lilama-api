@@ -4,7 +4,13 @@ import { HTTPError, HTTPErrorTuple } from "../errors/base";
 import { IdDTO } from "../dtos/base";
 import { IUser, ReadAllPermissions } from "../types/models/IUser";
 import { AnyKeys, ClientSession, PaginateResult } from "mongoose";
-import { IDisableService, IGetDetailsService, IPaginateService, IUpdateService } from "../types/interfaces/service";
+import {
+    ICreateService,
+    IDisableService,
+    IGetDetailsService,
+    IPaginateService,
+    IUpdateService,
+} from "../types/interfaces/service";
 import { SYSTEM } from "../config/common";
 
 type ServiceError = {
@@ -16,7 +22,12 @@ export abstract class BaseService<
     SearchDTO extends object = any,
     UpdateDTO extends IdDTO = any,
     CreateDTO = Partial<Schema>
-> implements IPaginateService<Schema>, IGetDetailsService<Schema>, IDisableService, IUpdateService<UpdateDTO>
+> implements
+        IPaginateService<Schema>,
+        IGetDetailsService<Schema>,
+        IDisableService,
+        IUpdateService<UpdateDTO>,
+        ICreateService<Schema, CreateDTO>
 {
     private repo: BaseRepository<Schema, any>;
     private error: ServiceError;
@@ -98,10 +109,10 @@ export abstract class BaseService<
         return this.repo.updateById(dto.id, updateData, updatedBy);
     }
 
-    async getTemp(): Promise<Schema> {
+    async getTemp(customData?: object): Promise<Schema> {
         const temp = await this.repo.findFirst(this.tempQuery);
         if (!temp) {
-            return this.repo.insert({ ...this.tempData, need_review: true }, SYSTEM);
+            return this.repo.insert({ ...this.tempData, ...customData, need_review: true }, SYSTEM);
         }
         return temp;
     }

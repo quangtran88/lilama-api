@@ -34,7 +34,7 @@ export class MainContractInitializer<DTO extends IMainContractCode> extends Init
     protected async insert({ main_contract_code }: DTO, updatedBy: string, s: ClientSession): Promise<IMainContract> {
         const project = await projectService.getTemp();
         const customer = await customerService.getTemp();
-        const binding_package = await bindingPackageService.getTemp();
+        const binding_package = await bindingPackageService.getTemp({ project });
         return mainContractService.create(
             { code: main_contract_code, project, customer, binding_package },
             updatedBy,
