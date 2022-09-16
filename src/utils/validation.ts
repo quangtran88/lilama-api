@@ -31,7 +31,7 @@ export function zodDate() {
     return z
         .preprocess((date) => {
             if (typeof date == "string") {
-                if (date.includes("/")) return moment(date, "DD/MM/YYYY").utcOffset(-7).toISOString();
+                if (date.includes("/")) return moment(date, "DD/MM/YYYY").utcOffset(-7).toDate();
                 else return moment(date).toDate();
             }
         }, z.date())
