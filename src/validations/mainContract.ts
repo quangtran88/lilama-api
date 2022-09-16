@@ -18,5 +18,5 @@ export const UpdateMainContractDTOValidation = IdDTOValidation.extend({
     customer_code: z.string().optional(),
     value: z.number().optional(),
     description: z.string().optional(),
-    signed_at: z.string().optional(),
+    signed_at: zodDate(),
 });
