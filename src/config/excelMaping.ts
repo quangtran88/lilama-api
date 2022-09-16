@@ -1,5 +1,6 @@
 import { UploadProjectDTO } from "../types/dtos/project";
 import { UploadBindingPackageDTO } from "../types/dtos/bindingPackage";
+import { UploadCostTypeDTO } from "../types/dtos/costType";
 import { UploadCustomerDTO } from "../types/dtos/customer";
 import { UploadMainContractDTO } from "../types/dtos/mainContract";
 import { UploadIncomeDTO } from "../types/dtos/income";
@@ -17,6 +18,12 @@ export const IMPORT_BINDING_PACKAGE_KEY: ExcelMapping<UploadBindingPackageDTO> =
     code: "Tên gói thầu",
     description: "Thông tin gói thầu",
     project_code: "Tên dự án",
+};
+
+export const IMPORT_COSTTYPE_KEY: ExcelMapping<UploadCostTypeDTO> = {
+    code: "Loại phí",
+    name: "Tên loại phí",
+    note: "Ghi chú",
 };
 
 export const IMPORT_CUSTOMER_KEY: ExcelMapping<UploadCustomerDTO> = {
