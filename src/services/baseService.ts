@@ -101,7 +101,7 @@ export abstract class BaseService<
     async getTemp(): Promise<Schema> {
         const temp = await this.repo.findFirst(this.tempQuery);
         if (!temp) {
-            return this.repo.insert(this.tempData, SYSTEM);
+            return this.repo.insert({ ...this.tempData, need_review: true }, SYSTEM);
         }
         return temp;
     }
