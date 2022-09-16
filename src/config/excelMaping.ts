@@ -8,6 +8,8 @@ import { UploadExecutorDTO } from "../types/dtos/executor";
 import { UploadManagerDTO } from "../types/dtos/manager";
 import { UploadFreelanceContractDTO } from "../types/dtos/freelanceContract";
 import { UploadAcceptanceDTO } from "../types/dtos/acceptance";
+import { UploadBudgetDTO } from "../types/dtos/budget";
+import { UploadExecutionDTO } from "../types/dtos/execution";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -105,4 +107,25 @@ export const IMPORT_ACCEPTANCE_KEY: ExcelMapping<Required<UploadAcceptanceDTO>> 
     acceptance_value: "Gt nghiệm thu",
     invoice_date: "Ngày hóa đơn",
     new_distributed_value: "Gt nghiệm thu",
+};
+
+export const IMPORT_BUDGET_KEY: ExcelMapping<Required<UploadBudgetDTO>> = {
+    cost_type_code: "Mã chi phí",
+    description: "Chi tiết chi phí thi công",
+    freelance_contract_code: "Số HDTC",
+    value: "GT Thi công",
+};
+
+export const IMPORT_EXECUTION_KEY: ExcelMapping<Required<UploadExecutionDTO>> = {
+    freelance_contract_code: "Số HDTC",
+    cost_type_code: "Mã chi phí",
+    document_codes: "SCT",
+    document_dates: "Ngày SCT",
+    expense_date: "Thời điểm ghi nhận chi phí",
+    marking: "Marking",
+    payment_request_code: "Số DNTT",
+    payment_request_date: "Ngày ký DNTT",
+    payment_request_note: "Nội dung đề nghị thanh toán của tháng",
+    payment_request_value: "GT DNTT",
+    vendor: "NCC",
 };

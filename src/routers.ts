@@ -13,6 +13,8 @@ import executorController from "./controllers/executorController";
 import managerController from "./controllers/managerController";
 import freelanceContractController from "./controllers/freelanceContractController";
 import acceptanceController from "./controllers/acceptanceController";
+import executionController from "./controllers/executionController";
+import budgetController from "./controllers/budgetController";
 
 const router = Router();
 
@@ -31,7 +33,9 @@ router.use(
     executorController,
     managerController,
     freelanceContractController,
-    acceptanceController
+    acceptanceController,
+    executionController,
+    budgetController
 );
 
 export default router;
