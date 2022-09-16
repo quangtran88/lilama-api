@@ -30,13 +30,15 @@ import mainContractService from "./mainContractService";
 import executorService from "./executorService";
 import { TEMP_CODE } from "../config/common";
 import acceptanceRepository from "../repositories/acceptanceRepository";
+import executionRepository from "../repositories/executionRepository";
+import budgetRepository from "../repositories/budgetRepository";
 
 class FreelanceContractService
     extends BaseService<IFreelanceContract, any, UpdateFreelanceContractDTO>
     implements IUploadService<UploadFreelanceContractDTO, IFreelanceContract, UploadFreelanceContractResultDTO>
 {
     dependencyField = "freelance_contract";
-    dependencyRepo = [acceptanceRepository];
+    dependencyRepo = [acceptanceRepository, executionRepository, budgetRepository];
     tempQuery = { code: TEMP_CODE };
     tempData = { code: TEMP_CODE };
 
