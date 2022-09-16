@@ -102,10 +102,6 @@ class BindingPackageService
             );
         });
     }
-
-    async updateProjectReview(projectCode: string, updatedBy: string) {
-        return bindingPackageRepository.updateMany({ "project.code": projectCode }, { need_review: false }, updatedBy);
-    }
 }
 
 export default new BindingPackageService();
