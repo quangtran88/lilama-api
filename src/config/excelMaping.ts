@@ -6,6 +6,7 @@ import { UploadIncomeDTO } from "../types/dtos/income";
 import { UploadFinanceDTO } from "../types/dtos/finance";
 import { UploadExecutorDTO } from "../types/dtos/executor";
 import { UploadManagerDTO } from "../types/dtos/manager";
+import { UploadFreelanceContractDTO } from "../types/dtos/freelanceContract";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -80,4 +81,18 @@ export const IMPORT_EXECUTOR_KEY: ExcelMapping<Required<UploadExecutorDTO>> = {
 export const IMPORT_MANAGER_KEY: ExcelMapping<Required<UploadManagerDTO>> = {
     code: "CBDA",
     info: "Thông tin CBDA",
+};
+
+export const IMPORT_FREELANCE_CONTRACT_KEY: ExcelMapping<Required<UploadFreelanceContractDTO>> = {
+    code: "Số HDTC",
+    main_contract_code: "Số HDC",
+    manager_code: "CBDA",
+    executor_code: "DVTT",
+    description: "Phạm vi công việc giao khoán",
+    distributed_value: "Giá trị HDC tương ứng",
+    execution_description: "Phạm vi thực hiện",
+    gnv_code: "GNV số",
+    gnv_date: "Ngày ký GNV",
+    signed_at: "Ngày ký HDTC",
+    status: "Tình trạng",
 };
