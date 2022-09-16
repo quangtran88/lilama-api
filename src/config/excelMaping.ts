@@ -5,6 +5,7 @@ import { UploadMainContractDTO } from "../types/dtos/mainContract";
 import { UploadIncomeDTO } from "../types/dtos/income";
 import { UploadFinanceDTO } from "../types/dtos/finance";
 import { UploadExecutorDTO } from "../types/dtos/executor";
+import { UploadManagerDTO } from "../types/dtos/manager";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -74,4 +75,9 @@ export const IMPORT_FINANCE_KEY: ExcelMapping<Required<UploadFinanceDTO>> = {
 export const IMPORT_EXECUTOR_KEY: ExcelMapping<Required<UploadExecutorDTO>> = {
     code: "DVTT",
     info: "Thông tin DVTT",
+};
+
+export const IMPORT_MANAGER_KEY: ExcelMapping<Required<UploadManagerDTO>> = {
+    code: "CBDA",
+    info: "Thông tin CBDA",
 };

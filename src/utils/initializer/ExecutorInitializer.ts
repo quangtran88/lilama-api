@@ -5,27 +5,27 @@ import executorRepository from "../../repositories/executorRepository";
 import executorService from "../../services/executorService";
 
 interface IExecutorCode {
-    project_code: string;
-    project?: null | {
+    executor_code: string;
+    executor?: null | {
         id: string;
     };
 }
 
 export class ExecutorInitializer<DTO extends IExecutorCode> extends Initializer<IExecutor, DTO> {
     protected async getData(dto: DTO, uploadedBy: string, s: ClientSession): Promise<IExecutor | null> {
-        await executorRepository.addContributor([dto.project!.id], uploadedBy, s);
-        return executorRepository.findById(dto.project!.id);
+        await executorRepository.addContributor([dto.executor!.id], uploadedBy, s);
+        return executorRepository.findById(dto.executor!.id);
     }
 
     protected getKey(dto: DTO): string {
-        return dto.project_code;
+        return dto.executor_code;
     }
 
     protected insert(dto: DTO, updatedBy: string, s: ClientSession): Promise<IExecutor> {
-        return executorService.create({ code: dto.project_code }, updatedBy, s);
+        return executorService.create({ code: dto.executor_code }, updatedBy, s);
     }
 
     protected shouldInsert(dto: DTO): boolean {
-        return !dto.project?.id;
+        return !dto.executor?.id;
     }
 }
