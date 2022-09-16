@@ -27,12 +27,10 @@ class IncomeService
     }
 
     async _beforeCreate(dto: Partial<IIncome>, createdBy: string, session?: ClientSession): Promise<Partial<IIncome>> {
-        const payment_request_debt = this.calculatePaymentRequestDebt(
-            dto.payment_request_value,
-            dto.received_value,
-            dto.deduction_value
-        );
         const is_advance_payment = this.isAdvancePayment(dto.note);
+        const payment_request_debt = is_advance_payment
+            ? 0
+            : this.calculatePaymentRequestDebt(dto.payment_request_value, dto.received_value, dto.deduction_value);
         const remainingAdvanceValue = await this.getRemainingAdvanceValue(dto.main_contract!.code, session);
         const remaining_advance_refund = is_advance_payment
             ? remainingAdvanceValue + safeNumber(dto.received_value)
@@ -100,28 +98,17 @@ class IncomeService
 
     async getRemainingAdvanceValue(mainContractCode: string, session?: ClientSession) {
         const lastIncome = await incomeRepository.findFirst(
-            { "main_contract.code": mainContractCode, is_advance_payment: false },
+            { "main_contract.code": mainContractCode },
             { created_at: -1 },
             session
         );
-        const lastAdvance = await incomeRepository.findFirst(
-            { "main_contract.code": mainContractCode, is_advance_payment: true },
-            { created_at: -1 },
-            session
-        );
-        if (!lastIncome) {
-            return safeNumber(lastAdvance?.received_value);
-        }
-        if (!lastAdvance || lastIncome.created_at.valueOf() >= lastAdvance.created_at.valueOf()) {
-            return safeNumber(lastIncome?.remaining_advance_refund);
-        }
-        return safeNumber(lastIncome.remaining_advance_refund) + safeNumber(lastAdvance.received_value);
+        return safeNumber(lastIncome?.remaining_advance_refund);
     }
 
     async recalculateRARSinceDate(mainContractCode: string, createdSince: Date, lastRemaining: number) {
         const incomes = await incomeRepository.find(
             { "main_contract.code": mainContractCode, created_at: { $gt: createdSince } },
-            { created_at: -1 }
+            { created_at: 1 }
         );
         let remaining = lastRemaining;
         for (const income of incomes) {

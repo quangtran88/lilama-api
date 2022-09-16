@@ -25,7 +25,9 @@ export function generateSchema<ISchema>(schemaDefinition: SchemaDefinition<ISche
             deleted_by: String,
             created_by: String,
             updated_by: String,
-            histories: [schemaDefinition],
+            histories: [
+                { ...schemaDefinition, created_by: String, created_at: Date, updated_by: String, updated_at: Date },
+            ],
         },
         { timestamps: defaultTimestamp, ...options }
     );

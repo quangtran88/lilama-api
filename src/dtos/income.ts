@@ -21,7 +21,7 @@ export class IncomeResultDTO extends BaseResultDTO {
     payment_request_value?: number;
     advance_refund_value?: number;
     retention_value?: number;
-    received_date?: number;
+    received_date?: Date;
     received_value?: number;
     deduction_value?: number;
     note?: string;
@@ -41,7 +41,7 @@ export class IncomeResultDTO extends BaseResultDTO {
         this.taxable_value = income.taxable_value;
         this.payment_request_code = income.payment_request_code;
         this.payment_request_date = income.payment_request_date;
-        this.payment_request_value = income.payment_request_debt;
+        this.payment_request_value = income.payment_request_value;
         this.advance_refund_value = income.advance_refund_value;
         this.retention_value = income.retention_value;
         this.received_date = income.received_date;

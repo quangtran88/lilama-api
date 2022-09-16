@@ -28,7 +28,7 @@ const IncomeSchema = generateSchema<IIncome>({
     payment_request_value: Number,
     advance_refund_value: Number,
     retention_value: Number,
-    received_date: Number,
+    received_date: Date,
     received_value: Number,
     deduction_value: Number,
     note: String,
@@ -39,7 +39,6 @@ const IncomeSchema = generateSchema<IIncome>({
 
 IncomeSchema.plugin(paginate);
 
-IncomeSchema.index({ code: 1 }, { unique: true });
 IncomeSchema.index({ "main_contract.code": 1, created_at: -1 });
 
 export const IncomeModel = model<IIncomeDocument, IIncomeModel>("Income", IncomeSchema);
@@ -58,7 +57,7 @@ const IIncomeUploadSchema = generateUploadSchema<IIncomeUpload>({
     payment_request_value: Number,
     advance_refund_value: Number,
     retention_value: Number,
-    received_date: Number,
+    received_date: Date,
     received_value: Number,
     deduction_value: Number,
     note: String,

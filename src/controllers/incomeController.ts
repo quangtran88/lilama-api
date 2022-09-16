@@ -1,5 +1,4 @@
 import {
-    createDisableRoute,
     createGetDetailsRoute,
     createPaginateRoute,
     createUpdateRoute,
@@ -19,8 +18,6 @@ const r = new CustomRouter();
 createPaginateRoute(r, PATHS, incomeService, IncomeResultDTO);
 
 createGetDetailsRoute(r, PATH, incomeService, IncomeResultDTO);
-
-createDisableRoute(r, PATH, incomeService);
 
 createUpdateRoute(r, PATH, UpdateIncomeDTOValidation, incomeService);
 

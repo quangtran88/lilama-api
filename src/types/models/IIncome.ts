@@ -19,7 +19,7 @@ export interface IIncome extends IBase<IIncome> {
     payment_request_value?: number;
     advance_refund_value?: number;
     retention_value?: number;
-    received_date?: number;
+    received_date?: Date;
     received_value?: number;
     deduction_value?: number;
     is_advance_payment: boolean;
@@ -44,7 +44,7 @@ export interface IIncomeUpload extends IBase {
     payment_request_value?: number;
     advance_refund_value?: number;
     retention_value?: number;
-    received_date?: number;
+    received_date?: Date;
     received_value?: number;
     deduction_value?: number;
     note?: string;
