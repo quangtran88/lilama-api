@@ -10,6 +10,7 @@ import { UploadFreelanceContractDTO } from "../types/dtos/freelanceContract";
 import { UploadAcceptanceDTO } from "../types/dtos/acceptance";
 import { UploadBudgetDTO } from "../types/dtos/budget";
 import { UploadExecutionDTO } from "../types/dtos/execution";
+import { UploadCostTypeDTO } from "../types/dtos/costType";
 
 export type ExcelMapping<Schema = any> = {
     [key in keyof Schema]: string;
@@ -128,4 +129,10 @@ export const IMPORT_EXECUTION_KEY: ExcelMapping<Required<UploadExecutionDTO>> = 
     payment_request_note: "Nội dung đề nghị thanh toán của tháng",
     payment_request_value: "GT DNTT",
     vendor: "NCC",
+};
+
+export const IMPORT_COST_TYPE_KEY: ExcelMapping<Required<UploadCostTypeDTO>> = {
+    code: "Mã chi phí",
+    description: "Ghi chú",
+    name: "Tên chi phí",
 };

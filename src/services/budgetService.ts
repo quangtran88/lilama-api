@@ -12,6 +12,9 @@ import { IFreelanceContract } from "../types/models/IFreelanceContract";
 import freelanceContractRepository from "../repositories/freelanceContractRepository";
 import { FreelanceContractResultDTO } from "../dtos/freelanceContract";
 import { FreelanceContractInitializer } from "../utils/initializer/FreelanceContractInitializer";
+import { ICostType } from "../types/models/ICostType";
+import costTypeRepository from "../repositories/costTypeRepository";
+import { UploadError } from "../errors/base";
 
 class BudgetService
     extends BaseService<IBudget, any, UpdateBudgetDTO>
@@ -50,9 +53,16 @@ class BudgetService
         const getFreelanceContractCache = initCache<IFreelanceContract>((code) =>
             freelanceContractRepository.findByCode(code)
         );
-        // TODO: Cost Type
-        return verifyUpload(dtoList, async (dto) => {
+        const getCostTypeCache = initCache<ICostType>((code) => costTypeRepository.findByCode(code));
+
+        return verifyUpload(dtoList, async (dto, line) => {
             const freelanceContract = await getFreelanceContractCache(dto.freelance_contract_code);
+
+            const costType = await getCostTypeCache(dto.cost_type_code);
+            if (!costType) {
+                throw new UploadError(`Cost Type ${dto.cost_type_code} not exist`, line);
+            }
+
             return {
                 ...dto,
                 freelance_contract: freelanceContract && new FreelanceContractResultDTO(freelanceContract),
@@ -63,10 +73,12 @@ class BudgetService
     async commitUpload(dtoList: UploadBudgetResultDTO[], uploadedBy: string): Promise<IBudget[]> {
         const data = await this.verifyUpload(dtoList);
         const freelanceContractInitializer = new FreelanceContractInitializer();
-        // TODO: Cost Type
+        const getCostTypeCache = initCache<ICostType>((code) => costTypeRepository.findByCode(code));
+
         return commitUpload(data, budgetRepository, uploadedBy, async (dto, s) => {
             const freelance_contract = await freelanceContractInitializer.init(dto, uploadedBy, s);
-            return this.create({ ...dto, freelance_contract, cost_type: {} }, uploadedBy, s);
+            const cost_type = await getCostTypeCache(dto.cost_type_code);
+            return this.create({ ...dto, freelance_contract, cost_type: cost_type! }, uploadedBy, s);
         });
     }
 }
