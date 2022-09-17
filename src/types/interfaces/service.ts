@@ -21,11 +21,11 @@ export interface IPaginateService<Schema = any, SearchDTO = any> {
 }
 
 export interface IGetDetailsService<ResultDTO = any> {
-    getDetails(d: string, currentUser: IUser): Promise<ResultDTO | undefined | null>;
+    getDetails(id: string, currentUser: IUser): Promise<ResultDTO | undefined | null>;
 }
 
 export interface IUpdateService<UpdateDTO = any> {
-    update(dto: UpdateDTO, updatedBy: string): Promise<UpdateWriteOpResult>;
+    update(dto: UpdateDTO, currentUser: IUser): Promise<UpdateWriteOpResult>;
 }
 
 export interface IDisableService {

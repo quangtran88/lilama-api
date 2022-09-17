@@ -123,7 +123,7 @@ export function createUpdateRoute(
 ) {
     router.PATCH(`${prefixPath}/:id`, allow(["D"]), async (req) => {
         const dto = validateZod(updateValidation, { ...req.body, id: req.params.id });
-        await updateService.update(dto, req.currentUser!.username);
+        await updateService.update(dto, req.currentUser!);
         return success();
     });
 }

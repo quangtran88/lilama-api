@@ -1,4 +1,4 @@
-import { IUser } from "../types/models/IUser";
+import { IUser, UserPermission } from "../types/models/IUser";
 import { hashPassword } from "../utils/hash";
 import userRepository from "../repositories/userRepository";
 import { HTTPError } from "../errors/base";
@@ -8,6 +8,7 @@ import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
 import { BaseService } from "./baseService";
 import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import { AnyKeys } from "mongoose";
+import { AuthError } from "../errors/authErrors";
 
 class UserService extends BaseService<IUser, any, UpdateUserDTO, CreateUserDTO> {
     constructor() {
@@ -27,7 +28,15 @@ class UserService extends BaseService<IUser, any, UpdateUserDTO, CreateUserDTO> 
         return { ...dto, password: hashedPassword, active: true };
     }
 
-    async _beforeUpdate(dto: UpdateUserDTO): Promise<AnyKeys<IUser>> {
+    async _beforeUpdate(
+        dto: UpdateUserDTO,
+        updatedBy: string,
+        existed: IUser,
+        currentUser: IUser
+    ): Promise<AnyKeys<IUser>> {
+        if (currentUser.permission != UserPermission.D && existed.id != currentUser.id) {
+            throw new HTTPError(AuthError.NO_PERMISSION);
+        }
         if (dto.password) {
             dto.password = await hashPassword(dto.password);
         }

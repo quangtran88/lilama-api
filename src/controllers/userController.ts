@@ -27,9 +27,9 @@ router.GET("/user/:id", allow(["D"]), async ({ params, currentUser }) => {
     return userDetails && data(new UserResultDTO(userDetails));
 });
 
-router.PATCH("/user/:id", allow(["D"]), async (req) => {
+router.PATCH("/user/:id", allow(["D", "C", "B", "A"]), async (req) => {
     const dto = validateZod(UpdateUserDTOValidation, { ...req.body, id: req.params.id });
-    await userService.update(dto, req.currentUser!.username);
+    await userService.update(dto, req.currentUser!);
     return success();
 });
 

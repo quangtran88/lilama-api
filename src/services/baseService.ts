@@ -92,7 +92,12 @@ export abstract class BaseService<
         return this.repo.insert(createData, createdBy, session);
     }
 
-    abstract _beforeUpdate(dto: UpdateDTO, updatedBy: string, existed: Schema): Promise<AnyKeys<Schema>>;
+    abstract _beforeUpdate(
+        dto: UpdateDTO,
+        updatedBy: string,
+        existed: Schema,
+        currentUser: IUser
+    ): Promise<AnyKeys<Schema>>;
 
     abstract _updateDependencyData(
         dependencyRepo: BaseRepository<any, any>,
@@ -101,13 +106,14 @@ export abstract class BaseService<
         updatedBy: string
     ): Promise<void>;
 
-    async update(dto: UpdateDTO, updatedBy: string) {
+    async update(dto: UpdateDTO, currentUser: IUser) {
+        const updatedBy = currentUser.username;
         const existed = await this.assertExisted(dto.id);
         // @ts-ignore
         if (existed?.code == TEMP_CODE) {
             throw new HTTPError(CommonError.UPDATE_TEMP_DATA);
         }
-        const updateData = await this._beforeUpdate(dto, updatedBy, existed);
+        const updateData = await this._beforeUpdate(dto, updatedBy, existed, currentUser);
         if (this.dependencyRepo.length) {
             this.dependencyRepo.forEach((repo) => this._updateDependencyData(repo, existed, dto, updatedBy));
         }
