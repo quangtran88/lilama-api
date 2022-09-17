@@ -15,6 +15,7 @@ import { FreelanceContractInitializer } from "../utils/initializer/FreelanceCont
 import { ICostType } from "../types/models/ICostType";
 import costTypeRepository from "../repositories/costTypeRepository";
 import { UploadError } from "../errors/base";
+import { CostTypeResultDTO } from "../dtos/costType";
 
 class BudgetService
     extends BaseService<IBudget, any, UpdateBudgetDTO>
@@ -66,6 +67,7 @@ class BudgetService
             return {
                 ...dto,
                 freelance_contract: freelanceContract && new FreelanceContractResultDTO(freelanceContract),
+                cost_type: new CostTypeResultDTO(costType!),
             };
         });
     }

@@ -15,6 +15,7 @@ import { FreelanceContractInitializer } from "../utils/initializer/FreelanceCont
 import { UploadError } from "../errors/base";
 import { ICostType } from "../types/models/ICostType";
 import costTypeRepository from "../repositories/costTypeRepository";
+import { CostTypeResultDTO } from "../dtos/costType";
 
 class ExecutionService
     extends BaseService<IExecution, any, UpdateExecutionDTO>
@@ -66,6 +67,7 @@ class ExecutionService
             return {
                 ...dto,
                 freelance_contract: freelanceContract && new FreelanceContractResultDTO(freelanceContract),
+                cost_type: new CostTypeResultDTO(costType!),
             };
         });
     }
