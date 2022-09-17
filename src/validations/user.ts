@@ -28,3 +28,17 @@ export const UpdateUserDTOValidation = z.object({
     phone: z.string().optional(),
     full_name: z.string().optional(),
 });
+
+export const ChangePasswordDTOValidation = z.object({
+    id: z.string().refine((s) => isOID(s)),
+    old_password: z
+        .string()
+        .min(8)
+        .max(20)
+        .regex(new RegExp("^(?=.*[a-zA-Z])(?=.*[0-9])"), "Must contains at least one number and one character"),
+    new_password: z
+        .string()
+        .min(8)
+        .max(20)
+        .regex(new RegExp("^(?=.*[a-zA-Z])(?=.*[0-9])"), "Must contains at least one number and one character"),
+});

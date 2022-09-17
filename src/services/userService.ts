@@ -1,10 +1,10 @@
 import { IUser, UserPermission } from "../types/models/IUser";
-import { hashPassword } from "../utils/hash";
+import { comparePasswordHash, hashPassword } from "../utils/hash";
 import userRepository from "../repositories/userRepository";
 import { HTTPError } from "../errors/base";
 import { UserError } from "../errors/userErrors";
 import { IdDTO } from "../dtos/base";
-import { CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
+import { ChangePasswordDTO, CreateUserDTO, UpdateUserDTO } from "../types/dtos/user";
 import { BaseService } from "./baseService";
 import { _FilterQuery, BaseRepository } from "../repositories/baseRepository";
 import { AnyKeys } from "mongoose";
@@ -59,6 +59,16 @@ class UserService extends BaseService<IUser, any, UpdateUserDTO, CreateUserDTO> 
     async block({ id }: IdDTO, updatedBy: string) {
         const user = await this.assertExisted(id);
         return userRepository.updateById(user.id, { active: false }, updatedBy);
+    }
+
+    async changePassword(dto: ChangePasswordDTO) {
+        const user = await this.assertExisted(dto.id);
+        const isValidPassword = await comparePasswordHash(dto.old_password, user.password);
+        if (!isValidPassword) {
+            throw new HTTPError(UserError.PASSWORD_NOT_MATCH);
+        }
+        const password = await hashPassword(dto.new_password);
+        await this.update({ id: user._id.toString(), password }, user);
     }
 }
 

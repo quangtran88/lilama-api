@@ -1,4 +1,4 @@
-import { CreateUserDTOValidation, UpdateUserDTOValidation } from "../validations/user";
+import { ChangePasswordDTOValidation, CreateUserDTOValidation, UpdateUserDTOValidation } from "../validations/user";
 import { validateZod } from "../utils/validation";
 import userService from "../services/userService";
 import { data, success } from "../utils/response";
@@ -21,6 +21,10 @@ router.GET("/users", allow(["D"]), async () => {
     return data(userDTOs);
 });
 
+router.GET("/user/me", allow(["D", "C", "B", "A"]), async ({ currentUser }) => {
+    return data(new UserResultDTO(currentUser!));
+});
+
 router.GET("/user/:id", allow(["D"]), async ({ params, currentUser }) => {
     const dto = validateZod(IdDTOValidation, { id: params.id });
     const userDetails = await userService.getDetails(dto.id, currentUser!);
@@ -36,6 +40,12 @@ router.PATCH("/user/:id", allow(["D", "C", "B", "A"]), async (req) => {
 router.POST("/user/:id/block", allow(["D"]), async (req) => {
     const dto = validateZod(IdDTOValidation, { id: req.params.id });
     await userService.block(dto, req.currentUser!.username);
+    return success();
+});
+
+router.POST("/user/password", allow(["D", "B", "C", "A"]), async ({ body, currentUser }) => {
+    const dto = validateZod(ChangePasswordDTOValidation, { id: currentUser!._id.toString(), ...body });
+    await userService.changePassword(dto);
     return success();
 });
 
