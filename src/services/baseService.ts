@@ -11,7 +11,8 @@ import {
     IPaginateService,
     IUpdateService,
 } from "../types/interfaces/service";
-import { SYSTEM } from "../config/common";
+import { SYSTEM, TEMP_CODE } from "../config/common";
+import { CommonError } from "../errors/commonErrors";
 
 type ServiceError = {
     NOT_FOUND: HTTPErrorTuple;
@@ -102,6 +103,10 @@ export abstract class BaseService<
 
     async update(dto: UpdateDTO, updatedBy: string) {
         const existed = await this.assertExisted(dto.id);
+        // @ts-ignore
+        if (existed?.code == TEMP_CODE) {
+            throw new HTTPError(CommonError.UPDATE_TEMP_DATA);
+        }
         const updateData = await this._beforeUpdate(dto, updatedBy, existed);
         if (this.dependencyRepo.length) {
             this.dependencyRepo.forEach((repo) => this._updateDependencyData(repo, existed, dto, updatedBy));
